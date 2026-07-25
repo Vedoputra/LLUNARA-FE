@@ -11,6 +11,7 @@ import { Button, Card, Divider, Input, Sheet, Text } from '@/components/ui';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeleteSymptom, useSymptoms } from '@/hooks/useSymptoms';
 import { authenticate, isAppLockAvailable } from '@/services/appLock';
+import { seedSampleData, type SeedProgress } from '@/services/devSeed';
 import { useAuthStore } from '@/store/authStore';
 import { useSettingsStore, type ThemePreference } from '@/store/settingsStore';
 
@@ -56,8 +57,39 @@ export default function PengaturanScreen() {
   const [periodLengthInput, setPeriodLengthInput] = useState(String(defaultPeriodLength));
   const [themeSheetVisible, setThemeSheetVisible] = useState(false);
   const [disclaimerSheetVisible, setDisclaimerSheetVisible] = useState(false);
+  const [isSeeding, setIsSeeding] = useState(false);
+  const [seedProgress, setSeedProgress] = useState<SeedProgress | null>(null);
 
   const customSymptoms = (symptomsQuery.data ?? []).filter((symptom) => symptom.is_custom);
+
+  const handleSeedData = () => {
+    Alert.alert(
+      'Isi data contoh',
+      'Ini akan membuat siklus, log harian, dan wellness contoh secara nyata di akunmu. Cocok untuk menguji fitur, bukan untuk data asli. Lanjutkan?',
+      [
+        { text: 'Batal', style: 'cancel' },
+        {
+          text: 'Isi data',
+          onPress: async () => {
+            setIsSeeding(true);
+            setSeedProgress(null);
+            try {
+              await seedSampleData(setSeedProgress);
+              Alert.alert('Selesai', 'Data contoh berhasil dibuat.');
+            } catch (err) {
+              Alert.alert(
+                'Gagal mengisi data',
+                err instanceof Error ? err.message : 'Terjadi kesalahan. Coba lagi.',
+              );
+            } finally {
+              setIsSeeding(false);
+              setSeedProgress(null);
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const handleSignOut = async () => {
     setSigningOut(true);
@@ -268,6 +300,32 @@ export default function PengaturanScreen() {
             onPress={() => Linking.openURL(REPOSITORY_URL)}
           />
         </Card>
+
+        {__DEV__ ? (
+          <>
+            <Text variant="caption" muted style={styles.sectionLabel}>
+              PENGEMBANGAN
+            </Text>
+            <Card style={styles.card}>
+              <Text muted variant="caption">
+                Mengisi ~6 siklus riwayat, log harian tersebar di seluruh fase (bukan cuma hari
+                menstruasi), dan wellness 14 hari terakhir — supaya Kalender, Statistik, dan Taman
+                punya data untuk ditampilkan.
+              </Text>
+              {seedProgress ? (
+                <Text variant="caption" color={theme.colors.primary}>
+                  {seedProgress.step} ({seedProgress.current}/{seedProgress.total})
+                </Text>
+              ) : null}
+              <Button
+                label="Isi data contoh"
+                variant="secondary"
+                loading={isSeeding}
+                onPress={handleSeedData}
+              />
+            </Card>
+          </>
+        ) : null}
 
         <Button
           label="Keluar"
