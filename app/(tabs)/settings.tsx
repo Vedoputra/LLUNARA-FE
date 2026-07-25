@@ -1,41 +1,26 @@
 import { Feather } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Button, Card, Text } from '@/components/ui';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { ReminderSettings } from '@/components/settings/ReminderSettings';
-import { env } from '@/constants/env';
+import { SettingsRow } from '@/components/settings/SettingsRow';
+import { Button, Card, Divider, Input, Sheet, Text } from '@/components/ui';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeleteSymptom, useSymptoms } from '@/hooks/useSymptoms';
+import { authenticate, isAppLockAvailable } from '@/services/appLock';
 import { useAuthStore } from '@/store/authStore';
-import type { HealthResponse } from '@/types/api';
+import { useSettingsStore, type ThemePreference } from '@/store/settingsStore';
 
-type ConnectionState =
-  | { status: 'checking' }
-  | { status: 'ok'; data: HealthResponse; elapsedMs: number }
-  | { status: 'degraded'; data: HealthResponse; elapsedMs: number }
-  | { status: 'error'; message: string; elapsedMs: number };
+const THEME_OPTIONS: { value: ThemePreference; label: string }[] = [
+  { value: 'system', label: 'Ikuti sistem' },
+  { value: 'light', label: 'Terang' },
+  { value: 'dark', label: 'Gelap' },
+];
 
-async function checkHealth(): Promise<ConnectionState> {
-  const startedAt = Date.now();
-  try {
-    const response = await fetch(`${env.apiUrl}/health`);
-    const elapsedMs = Date.now() - startedAt;
-    const data = (await response.json()) as HealthResponse;
-    return data.status === 'ok'
-      ? { status: 'ok', data, elapsedMs }
-      : { status: 'degraded', data, elapsedMs };
-  } catch (err) {
-    const elapsedMs = Date.now() - startedAt;
-    return {
-      status: 'error',
-      message: err instanceof Error ? err.message : 'Tidak dapat terhubung ke server.',
-      elapsedMs,
-    };
-  }
-}
+const REPOSITORY_URL = 'https://github.com/Vedoputra/LLUNARA-FE';
 
 export default function PengaturanScreen() {
   const theme = useTheme();
@@ -43,24 +28,41 @@ export default function PengaturanScreen() {
   const signOut = useAuthStore((state) => state.signOut);
   const symptomsQuery = useSymptoms();
   const deleteSymptom = useDeleteSymptom();
-  const [state, setState] = useState<ConnectionState>({ status: 'checking' });
+
+  const displayName = useSettingsStore((state) => state.displayName);
+  const birthYear = useSettingsStore((state) => state.birthYear);
+  const defaultCycleLength = useSettingsStore((state) => state.defaultCycleLength);
+  const defaultPeriodLength = useSettingsStore((state) => state.defaultPeriodLength);
+  const wellnessEnabled = useSettingsStore((state) => state.wellnessEnabled);
+  const themePreference = useSettingsStore((state) => state.themePreference);
+  const appLockEnabled = useSettingsStore((state) => state.appLockEnabled);
+  const setDisplayName = useSettingsStore((state) => state.setDisplayName);
+  const setBirthYear = useSettingsStore((state) => state.setBirthYear);
+  const setDefaultCycleLength = useSettingsStore((state) => state.setDefaultCycleLength);
+  const setDefaultPeriodLength = useSettingsStore((state) => state.setDefaultPeriodLength);
+  const setWellnessEnabled = useSettingsStore((state) => state.setWellnessEnabled);
+  const setThemePreference = useSettingsStore((state) => state.setThemePreference);
+  const setAppLockEnabled = useSettingsStore((state) => state.setAppLockEnabled);
+
   const [signingOut, setSigningOut] = useState(false);
 
-  useEffect(() => {
-    checkHealth().then(setState);
-  }, []);
+  const [nameSheetVisible, setNameSheetVisible] = useState(false);
+  const [nameInput, setNameInput] = useState(displayName ?? '');
+  const [yearSheetVisible, setYearSheetVisible] = useState(false);
+  const [yearInput, setYearInput] = useState(birthYear ? String(birthYear) : '');
+  const [cycleLengthSheetVisible, setCycleLengthSheetVisible] = useState(false);
+  const [cycleLengthInput, setCycleLengthInput] = useState(String(defaultCycleLength));
+  const [periodLengthSheetVisible, setPeriodLengthSheetVisible] = useState(false);
+  const [periodLengthInput, setPeriodLengthInput] = useState(String(defaultPeriodLength));
+  const [themeSheetVisible, setThemeSheetVisible] = useState(false);
+  const [disclaimerSheetVisible, setDisclaimerSheetVisible] = useState(false);
 
-  const runCheck = () => {
-    setState({ status: 'checking' });
-    checkHealth().then(setState);
-  };
+  const customSymptoms = (symptomsQuery.data ?? []).filter((symptom) => symptom.is_custom);
 
   const handleSignOut = async () => {
     setSigningOut(true);
     await signOut();
   };
-
-  const customSymptoms = (symptomsQuery.data ?? []).filter((symptom) => symptom.is_custom);
 
   const handleDeleteSymptom = (id: string, name: string) => {
     Alert.alert(
@@ -71,6 +73,22 @@ export default function PengaturanScreen() {
         { text: 'Hapus', style: 'destructive', onPress: () => deleteSymptom.mutate(id) },
       ],
     );
+  };
+
+  const handleAppLockToggle = async (next: boolean) => {
+    if (next) {
+      const available = await isAppLockAvailable();
+      if (!available) {
+        Alert.alert(
+          'Tidak tersedia',
+          'Aktifkan biometrik atau PIN perangkat terlebih dahulu di pengaturan sistem sebelum mengaktifkan ini.',
+        );
+        return;
+      }
+      const success = await authenticate();
+      if (!success) return;
+    }
+    setAppLockEnabled(next);
   };
 
   return (
@@ -85,6 +103,56 @@ export default function PengaturanScreen() {
         </Text>
 
         <Text variant="caption" muted style={styles.sectionLabel}>
+          PROFIL
+        </Text>
+        <Card style={styles.card}>
+          <SettingsRow
+            icon="user"
+            label="Nama tampilan"
+            value={displayName ?? 'Belum diatur'}
+            onPress={() => {
+              setNameInput(displayName ?? '');
+              setNameSheetVisible(true);
+            }}
+          />
+          <Divider />
+          <SettingsRow
+            icon="calendar"
+            label="Tahun lahir"
+            value={birthYear ? String(birthYear) : 'Belum diatur'}
+            onPress={() => {
+              setYearInput(birthYear ? String(birthYear) : '');
+              setYearSheetVisible(true);
+            }}
+          />
+        </Card>
+
+        <Text variant="caption" muted style={styles.sectionLabel}>
+          SIKLUS
+        </Text>
+        <Card style={styles.card}>
+          <SettingsRow
+            icon="refresh-cw"
+            label="Panjang siklus default"
+            value={`${defaultCycleLength} hari`}
+            onPress={() => {
+              setCycleLengthInput(String(defaultCycleLength));
+              setCycleLengthSheetVisible(true);
+            }}
+          />
+          <Divider />
+          <SettingsRow
+            icon="droplet"
+            label="Durasi menstruasi default"
+            value={`${defaultPeriodLength} hari`}
+            onPress={() => {
+              setPeriodLengthInput(String(defaultPeriodLength));
+              setPeriodLengthSheetVisible(true);
+            }}
+          />
+        </Card>
+
+        <Text variant="caption" muted style={styles.sectionLabel}>
           PENGINGAT
         </Text>
         <Card style={styles.card}>
@@ -92,7 +160,7 @@ export default function PengaturanScreen() {
         </Card>
 
         <Text variant="caption" muted style={styles.sectionLabel}>
-          TAG GEJALA KUSTOM
+          GEJALA
         </Text>
         <Card style={styles.card}>
           {customSymptoms.length === 0 ? (
@@ -115,38 +183,92 @@ export default function PengaturanScreen() {
         </Card>
 
         <Text variant="caption" muted style={styles.sectionLabel}>
-          DIAGNOSTIK KONEKSI (sementara — akan pindah ke FE-7.x)
+          WELLNESS
         </Text>
         <Card style={styles.card}>
-          {state.status === 'checking' && <Text>Menghubungkan ke server...</Text>}
-
-          {state.status === 'ok' && (
-            <>
-              <Text variant="subtitle" color={theme.colors.success}>
-                Status backend: ok
-              </Text>
-              <Text muted>Versi: {state.data.version}</Text>
-              <Text muted>Waktu respons: {state.elapsedMs} ms</Text>
-            </>
-          )}
-
-          {state.status === 'degraded' && (
-            <Text variant="subtitle" color={theme.colors.danger}>
-              Status backend: degraded ({state.elapsedMs} ms)
-            </Text>
-          )}
-
-          {state.status === 'error' && (
-            <>
-              <Text variant="subtitle" color={theme.colors.danger}>
-                Tidak bisa terhubung
-              </Text>
-              <Text muted>{state.message}</Text>
-            </>
-          )}
+          <SettingsRow
+            icon="droplet"
+            label="Air minum"
+            switchValue={wellnessEnabled.water}
+            onSwitchChange={(value) => setWellnessEnabled('water', value)}
+          />
+          <Divider />
+          <SettingsRow
+            icon="moon"
+            label="Tidur"
+            switchValue={wellnessEnabled.sleep}
+            onSwitchChange={(value) => setWellnessEnabled('sleep', value)}
+          />
+          <Divider />
+          <SettingsRow
+            icon="activity"
+            label="Berat badan"
+            switchValue={wellnessEnabled.weight}
+            onSwitchChange={(value) => setWellnessEnabled('weight', value)}
+          />
         </Card>
 
-        <Button label="Coba lagi" variant="secondary" onPress={runCheck} style={styles.button} />
+        <Text variant="caption" muted style={styles.sectionLabel}>
+          TAMPILAN
+        </Text>
+        <Card style={styles.card}>
+          <SettingsRow
+            icon="eye"
+            label="Tema"
+            value={THEME_OPTIONS.find((option) => option.value === themePreference)?.label}
+            onPress={() => setThemeSheetVisible(true)}
+          />
+        </Card>
+
+        <Text variant="caption" muted style={styles.sectionLabel}>
+          KEAMANAN
+        </Text>
+        <Card style={styles.card}>
+          <SettingsRow
+            icon="lock"
+            label="Kunci aplikasi"
+            switchValue={appLockEnabled}
+            onSwitchChange={handleAppLockToggle}
+          />
+        </Card>
+
+        <Text variant="caption" muted style={styles.sectionLabel}>
+          DATA
+        </Text>
+        <Card style={styles.card}>
+          <SettingsRow
+            icon="download"
+            label="Ekspor data"
+            onPress={() => router.push('/settings/export')}
+          />
+          <Divider />
+          <SettingsRow
+            icon="user-x"
+            label="Hapus akun"
+            danger
+            onPress={() => router.push('/settings/delete-account')}
+          />
+        </Card>
+
+        <Text variant="caption" muted style={styles.sectionLabel}>
+          TENTANG
+        </Text>
+        <Card style={styles.card}>
+          <SettingsRow icon="info" label="Versi" value="1.0.0" />
+          <Divider />
+          <SettingsRow
+            icon="file-text"
+            label="Disclaimer"
+            onPress={() => setDisclaimerSheetVisible(true)}
+          />
+          <Divider />
+          <SettingsRow
+            icon="github"
+            label="Repository"
+            onPress={() => Linking.openURL(REPOSITORY_URL)}
+          />
+        </Card>
+
         <Button
           label="Keluar"
           variant="ghost"
@@ -155,6 +277,127 @@ export default function PengaturanScreen() {
           style={styles.button}
         />
       </ScrollView>
+
+      <Sheet visible={nameSheetVisible} onClose={() => setNameSheetVisible(false)}>
+        <Text variant="subtitle" style={styles.sheetTitle}>
+          Nama tampilan
+        </Text>
+        <Input
+          label="Nama"
+          value={nameInput}
+          onChangeText={setNameInput}
+          containerStyle={styles.sheetField}
+        />
+        <Button
+          label="Simpan"
+          onPress={() => {
+            setDisplayName(nameInput.trim() || null);
+            setNameSheetVisible(false);
+          }}
+        />
+      </Sheet>
+
+      <Sheet visible={yearSheetVisible} onClose={() => setYearSheetVisible(false)}>
+        <Text variant="subtitle" style={styles.sheetTitle}>
+          Tahun lahir
+        </Text>
+        <Input
+          label="Tahun lahir"
+          keyboardType="number-pad"
+          value={yearInput}
+          onChangeText={setYearInput}
+          containerStyle={styles.sheetField}
+        />
+        <Button
+          label="Simpan"
+          onPress={() => {
+            const parsed = parseInt(yearInput, 10);
+            setBirthYear(Number.isNaN(parsed) ? null : parsed);
+            setYearSheetVisible(false);
+          }}
+        />
+      </Sheet>
+
+      <Sheet visible={cycleLengthSheetVisible} onClose={() => setCycleLengthSheetVisible(false)}>
+        <Text variant="subtitle" style={styles.sheetTitle}>
+          Panjang siklus default
+        </Text>
+        <Input
+          label="Jumlah hari"
+          keyboardType="number-pad"
+          value={cycleLengthInput}
+          onChangeText={setCycleLengthInput}
+          containerStyle={styles.sheetField}
+        />
+        <Button
+          label="Simpan"
+          onPress={() => {
+            const parsed = parseInt(cycleLengthInput, 10);
+            if (!Number.isNaN(parsed) && parsed > 0) setDefaultCycleLength(parsed);
+            setCycleLengthSheetVisible(false);
+          }}
+        />
+      </Sheet>
+
+      <Sheet visible={periodLengthSheetVisible} onClose={() => setPeriodLengthSheetVisible(false)}>
+        <Text variant="subtitle" style={styles.sheetTitle}>
+          Durasi menstruasi default
+        </Text>
+        <Input
+          label="Jumlah hari"
+          keyboardType="number-pad"
+          value={periodLengthInput}
+          onChangeText={setPeriodLengthInput}
+          containerStyle={styles.sheetField}
+        />
+        <Button
+          label="Simpan"
+          onPress={() => {
+            const parsed = parseInt(periodLengthInput, 10);
+            if (!Number.isNaN(parsed) && parsed > 0) setDefaultPeriodLength(parsed);
+            setPeriodLengthSheetVisible(false);
+          }}
+        />
+      </Sheet>
+
+      <Sheet visible={themeSheetVisible} onClose={() => setThemeSheetVisible(false)}>
+        <Text variant="subtitle" style={styles.sheetTitle}>
+          Tema
+        </Text>
+        {THEME_OPTIONS.map((option) => (
+          <Pressable
+            key={option.value}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: themePreference === option.value }}
+            accessibilityLabel={option.label}
+            onPress={() => {
+              setThemePreference(option.value);
+              setThemeSheetVisible(false);
+            }}
+            style={styles.themeOptionRow}
+          >
+            <Feather
+              name={themePreference === option.value ? 'check-circle' : 'circle'}
+              size={20}
+              color={
+                themePreference === option.value ? theme.colors.primary : theme.colors.textMuted
+              }
+            />
+            <Text>{option.label}</Text>
+          </Pressable>
+        ))}
+      </Sheet>
+
+      <Sheet visible={disclaimerSheetVisible} onClose={() => setDisclaimerSheetVisible(false)}>
+        <Text variant="subtitle" style={styles.sheetTitle}>
+          Disclaimer
+        </Text>
+        <Text muted style={styles.sheetField}>
+          LLunara adalah teman pencatatan pribadimu. Prediksi dan insight yang ditampilkan adalah
+          perkiraan dari data yang kamu catat sendiri — bukan alat kontrasepsi, bukan diagnosis
+          medis, dan bukan pengganti konsultasi dengan tenaga kesehatan profesional.
+        </Text>
+      </Sheet>
     </SafeAreaView>
   );
 }
@@ -172,4 +415,12 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   button: { marginTop: 4 },
+  sheetTitle: { marginBottom: 12 },
+  sheetField: { marginBottom: 16 },
+  themeOptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    minHeight: 44,
+  },
 });

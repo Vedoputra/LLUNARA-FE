@@ -8,6 +8,7 @@ import {
   fontFamilies,
   type Palette,
 } from '@/constants/theme';
+import { useSettingsStore } from '@/store/settingsStore';
 
 export interface Theme {
   colors: Palette;
@@ -19,7 +20,9 @@ export interface Theme {
 }
 
 export function useTheme(): Theme {
-  const scheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+  const systemScheme = useColorScheme() === 'dark' ? 'dark' : 'light';
+  const themePreference = useSettingsStore((state) => state.themePreference);
+  const scheme = themePreference === 'system' ? systemScheme : themePreference;
 
   return {
     colors: palettes[scheme],

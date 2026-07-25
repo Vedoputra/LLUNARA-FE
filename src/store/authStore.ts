@@ -120,7 +120,12 @@ export const useAuthStore = create<AuthState>((set, get) => {
     },
 
     async signOut(reason = 'manual') {
-      await supabase.auth.signOut();
+      try {
+        await supabase.auth.signOut();
+      } catch {
+        // Local state is cleared below regardless — e.g. the account may have
+        // just been hard-deleted server-side, or the device may be offline.
+      }
       queryClient.clear();
       set({
         session: null,

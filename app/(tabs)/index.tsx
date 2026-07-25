@@ -8,11 +8,14 @@ import { ErrorState, LoadingState } from '@/components/feedback';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { PhaseIndicator } from '@/components/PhaseIndicator';
 import { Button, Card, Text } from '@/components/ui';
+import { SleepWidget, WaterWidget, WeightWidget } from '@/components/wellness';
 import { useCycleActions } from '@/hooks/useCycleActions';
 import { useCycles, useCyclePrediction } from '@/hooks/useCycles';
 import { useDailyLogs } from '@/hooks/useDailyLogs';
 import { useTheme } from '@/hooks/useTheme';
+import { useSaveWellness, useWellness } from '@/hooks/useWellness';
 import { useAuthStore } from '@/store/authStore';
+import { useSettingsStore } from '@/store/settingsStore';
 import type { FlowIntensity } from '@/types/api';
 import { diffInDays, formatLongDate, todayISO } from '@/utils/date';
 
@@ -37,6 +40,9 @@ export default function BerandaScreen() {
   const cyclesQuery = useCycles();
   const predictionQuery = useCyclePrediction();
   const todayLogQuery = useDailyLogs(today, today);
+  const todayWellnessQuery = useWellness(today, today);
+  const saveWellness = useSaveWellness();
+  const wellnessEnabled = useSettingsStore((state) => state.wellnessEnabled);
   const { confirmStart, confirmEnd, isStarting, isEnding } = useCycleActions();
 
   const cycles = cyclesQuery.data ?? [];
@@ -48,6 +54,9 @@ export default function BerandaScreen() {
   const daysUntilPeriod = prediction?.next_period_start
     ? diffInDays(today, prediction.next_period_start)
     : null;
+
+  const todayWellness = (todayWellnessQuery.data ?? [])[0];
+  const showWellnessRow = wellnessEnabled.water || wellnessEnabled.sleep || wellnessEnabled.weight;
 
   if (cyclesQuery.isLoading) {
     return (
@@ -184,6 +193,29 @@ export default function BerandaScreen() {
           )}
         </Card>
 
+        {showWellnessRow ? (
+          <View style={styles.wellnessRow}>
+            {wellnessEnabled.water ? (
+              <WaterWidget
+                glasses={todayWellness?.water_glasses ?? null}
+                onChange={(glasses) => saveWellness.mutate({ date: today, water_glasses: glasses })}
+              />
+            ) : null}
+            {wellnessEnabled.sleep ? (
+              <SleepWidget
+                hours={todayWellness?.sleep_hours ?? null}
+                onChange={(hours) => saveWellness.mutate({ date: today, sleep_hours: hours })}
+              />
+            ) : null}
+            {wellnessEnabled.weight ? (
+              <WeightWidget
+                weightKg={todayWellness?.weight_kg ?? null}
+                onChange={(weightKg) => saveWellness.mutate({ date: today, weight_kg: weightKg })}
+              />
+            ) : null}
+          </View>
+        ) : null}
+
         {prediction ? (
           <ConfidenceBadge
             confidence={prediction.confidence}
@@ -207,4 +239,5 @@ const styles = StyleSheet.create({
   logCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   logChipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   miniChip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
+  wellnessRow: { flexDirection: 'row', gap: 12 },
 });
