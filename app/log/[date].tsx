@@ -5,7 +5,7 @@ import { Alert, Image, Pressable, ScrollView, StyleSheet, TextInput, View } from
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SymptomSelector } from '@/components/SymptomSelector';
-import { Card, Text } from '@/components/ui';
+import { Button, Card, Text } from '@/components/ui';
 import { LoadingState } from '@/components/feedback';
 import { useCycles } from '@/hooks/useCycles';
 import { useDailyLogs, useDeleteDailyLog, useSaveDailyLog } from '@/hooks/useDailyLogs';
@@ -123,6 +123,16 @@ export default function DailyLogScreen() {
       saveTimerRef.current = null;
       performSave(merged);
     }, AUTOSAVE_DELAY_MS);
+  };
+
+  const handleManualSave = () => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = null;
+    }
+    const merged = pendingOverridesRef.current ?? {};
+    pendingOverridesRef.current = null;
+    performSave(merged);
   };
 
   const dayOfCycle = (() => {
@@ -330,6 +340,14 @@ export default function DailyLogScreen() {
           {notes.length}/{NOTES_MAX_LENGTH}
         </Text>
 
+        <Button
+          label="Simpan"
+          icon={<Feather name="check" size={18} color={theme.colors.onPrimary} />}
+          loading={saveLog.isPending}
+          onPress={handleManualSave}
+          style={styles.saveButton}
+        />
+
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Hapus catatan hari ini"
@@ -412,6 +430,7 @@ const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   notesCounter: { textAlign: 'right' },
+  saveButton: { marginTop: 8 },
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
