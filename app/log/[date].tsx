@@ -67,7 +67,7 @@ export default function DailyLogScreen() {
     if (existing) {
       setFlowIntensity(existing.flow_intensity ?? undefined);
       setMood(existing.mood ?? undefined);
-      setSymptomIds(existing.symptom_ids);
+      setSymptomIds(existing.symptom_ids ?? []);
       setNotes(existing.notes ?? '');
     }
     initializedRef.current = true;

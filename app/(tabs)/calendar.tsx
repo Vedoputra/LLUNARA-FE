@@ -77,7 +77,7 @@ export default function KalenderScreen() {
     }
 
     for (const log of dailyLogsQuery.data ?? []) {
-      if (log.symptom_ids.length > 0) {
+      if ((log.symptom_ids ?? []).length > 0) {
         marks[log.date] = { ...marks[log.date], hasSymptom: true };
       }
     }

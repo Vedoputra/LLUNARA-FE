@@ -180,10 +180,10 @@ export default function BerandaScreen() {
                   </Text>
                 </View>
               ) : null}
-              {todayLog.symptom_ids.length > 0 ? (
+              {(todayLog.symptom_ids ?? []).length > 0 ? (
                 <View style={[styles.miniChip, { backgroundColor: theme.colors.primarySoft }]}>
                   <Text variant="caption" color={theme.colors.primary}>
-                    {todayLog.symptom_ids.length} gejala
+                    {(todayLog.symptom_ids ?? []).length} gejala
                   </Text>
                 </View>
               ) : null}
