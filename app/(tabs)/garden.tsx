@@ -5,7 +5,7 @@ import { EmptyState } from '@/components/feedback';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { useTheme } from '@/hooks/useTheme';
 
-export default function BerandaScreen() {
+export default function TamanScreen() {
   const theme = useTheme();
 
   return (
@@ -13,11 +13,11 @@ export default function BerandaScreen() {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       edges={['top']}
     >
-      <ScreenHeader />
+      <ScreenHeader title="Taman Luna" />
       <View style={styles.content}>
         <EmptyState
-          title="Dashboard harianmu sedang disiapkan"
-          message="Catatan siklus, fase hari ini, dan Taman Luna akan tampil di sini pada tahap pengembangan berikutnya."
+          title="Taman Luna segera hadir"
+          message="Setiap catatan yang kamu simpan nanti akan membuat tamanmu makin semarak."
         />
       </View>
     </SafeAreaView>

@@ -22,3 +22,27 @@ export const queryKeys = {
   reminders: ['reminders'] as const,
   garden: ['garden'] as const,
 };
+
+/**
+ * Invalidation helpers for after a write operation. Grouped by the resource that
+ * was written to, since one write often affects derived data (e.g. a new daily
+ * log shifts the cycle prediction and the garden's logged-day count).
+ */
+export const invalidate = {
+  cycles: () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.cycles }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.cyclePrediction }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.insightsSummary }),
+    ]),
+  dailyLogs: () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['daily-logs'] }),
+      queryClient.invalidateQueries({ queryKey: ['insights'] }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.garden }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.cyclePrediction }),
+    ]),
+  symptoms: () => queryClient.invalidateQueries({ queryKey: queryKeys.symptoms }),
+  wellness: () => queryClient.invalidateQueries({ queryKey: ['wellness'] }),
+  reminders: () => queryClient.invalidateQueries({ queryKey: queryKeys.reminders }),
+};

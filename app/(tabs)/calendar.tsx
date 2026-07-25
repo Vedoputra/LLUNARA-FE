@@ -5,7 +5,7 @@ import { EmptyState } from '@/components/feedback';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { useTheme } from '@/hooks/useTheme';
 
-export default function BerandaScreen() {
+export default function KalenderScreen() {
   const theme = useTheme();
 
   return (
@@ -13,11 +13,11 @@ export default function BerandaScreen() {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       edges={['top']}
     >
-      <ScreenHeader />
+      <ScreenHeader title="Kalender" />
       <View style={styles.content}>
         <EmptyState
-          title="Dashboard harianmu sedang disiapkan"
-          message="Catatan siklus, fase hari ini, dan Taman Luna akan tampil di sini pada tahap pengembangan berikutnya."
+          title="Kalender siklus segera hadir"
+          message="Tandai hari menstruasi dan lihat prediksi siklusmu di sini pada tahap pengembangan berikutnya."
         />
       </View>
     </SafeAreaView>

@@ -5,7 +5,7 @@ import { EmptyState } from '@/components/feedback';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { useTheme } from '@/hooks/useTheme';
 
-export default function BerandaScreen() {
+export default function StatistikScreen() {
   const theme = useTheme();
 
   return (
@@ -13,11 +13,11 @@ export default function BerandaScreen() {
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       edges={['top']}
     >
-      <ScreenHeader />
+      <ScreenHeader title="Statistik" />
       <View style={styles.content}>
         <EmptyState
-          title="Dashboard harianmu sedang disiapkan"
-          message="Catatan siklus, fase hari ini, dan Taman Luna akan tampil di sini pada tahap pengembangan berikutnya."
+          title="Statistik siklus segera hadir"
+          message="Pola siklus, gejala paling sering, dan tren akan tampil di sini pada tahap pengembangan berikutnya."
         />
       </View>
     </SafeAreaView>

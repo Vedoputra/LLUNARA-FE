@@ -17,6 +17,7 @@ import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { queryClient } from '@/api/queryClient';
+import { OfflineBanner } from '@/components/feedback';
 import { useAuthStore } from '@/store/authStore';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -54,6 +55,7 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
+        <OfflineBanner />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Protected guard={!!session}>
             <Stack.Screen name="(tabs)" />

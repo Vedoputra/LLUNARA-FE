@@ -11,6 +11,7 @@ export interface ButtonProps extends Omit<PressableProps, 'children'> {
   variant?: ButtonVariant;
   loading?: boolean;
   disabled?: boolean;
+  icon?: React.ReactNode;
 }
 
 export function Button({
@@ -18,6 +19,7 @@ export function Button({
   variant = 'primary',
   loading = false,
   disabled = false,
+  icon,
   style,
   ...rest
 }: ButtonProps) {
@@ -59,9 +61,12 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={textColor} />
       ) : (
-        <Text variant="subtitle" color={textColor}>
-          {label}
-        </Text>
+        <>
+          {icon}
+          <Text variant="subtitle" color={textColor}>
+            {label}
+          </Text>
+        </>
       )}
     </Pressable>
   );
@@ -69,10 +74,12 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
     minHeight: 54,
     minWidth: 44,
     paddingHorizontal: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });
