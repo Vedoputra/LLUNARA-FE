@@ -1,8 +1,11 @@
 import { Tabs } from 'expo-router';
 
 import { TabBar } from '@/components/navigation/TabBar';
+import { useNotificationSync } from '@/hooks/useNotificationSync';
 
 export default function TabsLayout() {
+  useNotificationSync();
+
   return (
     <Tabs tabBar={(props) => <TabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" options={{ title: 'Beranda' }} />

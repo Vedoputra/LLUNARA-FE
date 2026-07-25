@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, Text } from '@/components/ui';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
+import { ReminderSettings } from '@/components/settings/ReminderSettings';
 import { env } from '@/constants/env';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeleteSymptom, useSymptoms } from '@/hooks/useSymptoms';
@@ -82,6 +83,13 @@ export default function PengaturanScreen() {
         <Text muted style={styles.subtitle}>
           Masuk sebagai {user?.email}
         </Text>
+
+        <Text variant="caption" muted style={styles.sectionLabel}>
+          PENGINGAT
+        </Text>
+        <Card style={styles.card}>
+          <ReminderSettings />
+        </Card>
 
         <Text variant="caption" muted style={styles.sectionLabel}>
           TAG GEJALA KUSTOM
