@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card, Text } from '@/components/ui';
 import { env } from '@/constants/env';
 import { useTheme } from '@/hooks/useTheme';
+import { useAuthStore } from '@/store/authStore';
 import type { HealthResponse } from '@/types/api';
 
 type ConnectionState =
@@ -32,9 +33,12 @@ async function checkHealth(): Promise<ConnectionState> {
   }
 }
 
-export default function DebugConnectivityScreen() {
+export default function TemporaryHomeScreen() {
   const theme = useTheme();
+  const user = useAuthStore((state) => state.user);
+  const signOut = useAuthStore((state) => state.signOut);
   const [state, setState] = useState<ConnectionState>({ status: 'checking' });
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     checkHealth().then(setState);
@@ -45,15 +49,17 @@ export default function DebugConnectivityScreen() {
     checkHealth().then(setState);
   };
 
+  const handleSignOut = async () => {
+    setSigningOut(true);
+    await signOut();
+  };
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
       <View style={styles.content}>
-        <Text variant="heading" style={styles.title}>
-          Verifikasi Koneksi Backend
-        </Text>
+        <Text variant="heading">Selamat datang!</Text>
         <Text muted style={styles.subtitle}>
-          Layar sementara FE-0.7 — akan dipindah ke menu diagnostik pengaturan setelah kerangka
-          aplikasi (FE-2.2) selesai.
+          Masuk sebagai {user?.email} — layar Beranda sesungguhnya dibangun di FE-3.5 (Fase 3).
         </Text>
 
         <Card style={styles.card}>
@@ -62,20 +68,17 @@ export default function DebugConnectivityScreen() {
           {state.status === 'ok' && (
             <>
               <Text variant="subtitle" color={theme.colors.success}>
-                Status: ok
+                Status backend: ok
               </Text>
-              <Text muted>Versi backend: {state.data.version}</Text>
+              <Text muted>Versi: {state.data.version}</Text>
               <Text muted>Waktu respons: {state.elapsedMs} ms</Text>
             </>
           )}
 
           {state.status === 'degraded' && (
-            <>
-              <Text variant="subtitle" color={theme.colors.danger}>
-                Status: degraded
-              </Text>
-              <Text muted>Waktu respons: {state.elapsedMs} ms</Text>
-            </>
+            <Text variant="subtitle" color={theme.colors.danger}>
+              Status backend: degraded ({state.elapsedMs} ms)
+            </Text>
           )}
 
           {state.status === 'error' && (
@@ -84,12 +87,18 @@ export default function DebugConnectivityScreen() {
                 Tidak bisa terhubung
               </Text>
               <Text muted>{state.message}</Text>
-              <Text muted>Waktu tunggu: {state.elapsedMs} ms</Text>
             </>
           )}
         </Card>
 
-        <Button label="Coba lagi" onPress={runCheck} style={styles.button} />
+        <Button label="Coba lagi" variant="secondary" onPress={runCheck} style={styles.button} />
+        <Button
+          label="Keluar"
+          variant="ghost"
+          loading={signingOut}
+          onPress={handleSignOut}
+          style={styles.button}
+        />
       </View>
     </SafeAreaView>
   );
@@ -98,8 +107,7 @@ export default function DebugConnectivityScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { flex: 1, padding: 20, justifyContent: 'center', gap: 16 },
-  title: {},
   subtitle: {},
   card: { gap: 8 },
-  button: { marginTop: 16 },
+  button: { marginTop: 8 },
 });

@@ -69,7 +69,7 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 44,
+    minHeight: 54,
     minWidth: 44,
     paddingHorizontal: 24,
     alignItems: 'center',

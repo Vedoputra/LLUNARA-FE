@@ -36,6 +36,10 @@ export interface ApiErrorBody {
   };
 }
 
+export interface MeResponse {
+  user_id: string;
+}
+
 export interface HealthResponse {
   status: 'ok' | 'degraded';
   version: string;
