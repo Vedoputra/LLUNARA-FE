@@ -30,13 +30,17 @@ interface AuthState {
 }
 
 function mapSignUpError(message: string): string {
-  if (/registered|exists/i.test(message)) {
+  const lower = message.toLowerCase();
+  if (lower.includes('already registered') || lower.includes('already exists')) {
     return 'Email ini sudah terdaftar. Silakan masuk.';
   }
-  if (/password/i.test(message)) {
+  if (lower.includes('rate limit')) {
+    return 'Terlalu banyak percobaan pendaftaran. Coba lagi dalam beberapa menit.';
+  }
+  if (lower.includes('password')) {
     return 'Kata sandi tidak memenuhi syarat minimal 8 karakter.';
   }
-  if (/email/i.test(message)) {
+  if (lower.includes('email') && (lower.includes('invalid') || lower.includes('format'))) {
     return 'Format email tidak valid.';
   }
   return 'Registrasi gagal. Silakan coba lagi.';
