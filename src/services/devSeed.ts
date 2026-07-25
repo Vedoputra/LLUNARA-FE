@@ -42,6 +42,22 @@ export async function seedSampleData(onProgress?: (progress: SeedProgress) => vo
   const emotional = symptomsRes.data.filter((s) => s.category === 'emotional');
   onProgress?.({ step: 'Mengambil daftar gejala', current: 1, total: 1 });
 
+  // Clear any cycles already in the account (e.g. from earlier manual
+  // testing) first — the overlap check has no way to know our generated
+  // history is meant to replace them, so a leftover cycle anywhere in the
+  // computed range would otherwise fail every seed run with CYCLE_OVERLAP.
+  const existingCyclesRes = await apiClient.get<Envelope<Cycle[]>>('/api/v1/cycles');
+  const existingCycles = existingCyclesRes.data;
+  onProgress?.({ step: 'Membersihkan siklus lama', current: 0, total: existingCycles.length });
+  for (let i = 0; i < existingCycles.length; i++) {
+    await apiClient.delete(`/api/v1/cycles/${existingCycles[i].id}`);
+    onProgress?.({
+      step: 'Membersihkan siklus lama',
+      current: i + 1,
+      total: existingCycles.length,
+    });
+  }
+
   const totalSpan = CYCLE_LENGTHS.reduce((sum, length) => sum + length, 0);
   let cursor = addDaysISO(today, -totalSpan);
   const cycles: { start: string; end: string; length: number }[] = [];

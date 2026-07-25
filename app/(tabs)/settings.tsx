@@ -65,7 +65,7 @@ export default function PengaturanScreen() {
   const handleSeedData = () => {
     Alert.alert(
       'Isi data contoh',
-      'Ini akan membuat siklus, log harian, dan wellness contoh secara nyata di akunmu. Cocok untuk menguji fitur, bukan untuk data asli. Lanjutkan?',
+      'Ini akan menghapus riwayat siklus yang sudah ada, lalu membuat siklus, log harian, dan wellness contoh secara nyata di akunmu. Cocok untuk menguji fitur, bukan untuk data asli. Lanjutkan?',
       [
         { text: 'Batal', style: 'cancel' },
         {

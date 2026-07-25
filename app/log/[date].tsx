@@ -58,6 +58,8 @@ export default function DailyLogScreen() {
 
   const initializedRef = useRef(false);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingOverridesRef = useRef<SaveOverrides | null>(null);
+  const latestFieldsRef = useRef({ flowIntensity, mood, symptomIds, notes });
 
   useEffect(() => {
     if (initializedRef.current || !logQuery.data) return;
@@ -72,29 +74,54 @@ export default function DailyLogScreen() {
   }, [logQuery.data]);
 
   useEffect(() => {
+    latestFieldsRef.current = { flowIntensity, mood, symptomIds, notes };
+  });
+
+  const performSave = (overrides: SaveOverrides) => {
+    const fields = latestFieldsRef.current;
+    saveLog.mutate(
+      {
+        date,
+        flow_intensity: overrides.flow_intensity ?? fields.flowIntensity,
+        mood: overrides.mood ?? fields.mood,
+        symptom_ids: overrides.symptom_ids ?? fields.symptomIds,
+        notes: overrides.notes ?? fields.notes,
+      },
+      {
+        onSuccess: () => {
+          setJustSaved(true);
+          setTimeout(() => setJustSaved(false), 2500);
+        },
+      },
+    );
+  };
+
+  // Flush — not just cancel — a still-pending debounced save on unmount
+  // (e.g. the user types a note then immediately navigates back within the
+  // 800ms window). Reads latestFieldsRef rather than component state
+  // directly, since this cleanup's closure is fixed at mount time.
+  useEffect(() => {
     return () => {
-      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+        const pending = pendingOverridesRef.current;
+        if (pending) {
+          pendingOverridesRef.current = null;
+          performSave(pending);
+        }
+      }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const scheduleSave = (overrides: SaveOverrides) => {
+    pendingOverridesRef.current = { ...pendingOverridesRef.current, ...overrides };
     if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
     saveTimerRef.current = setTimeout(() => {
-      saveLog.mutate(
-        {
-          date,
-          flow_intensity: overrides.flow_intensity ?? flowIntensity,
-          mood: overrides.mood ?? mood,
-          symptom_ids: overrides.symptom_ids ?? symptomIds,
-          notes: overrides.notes ?? notes,
-        },
-        {
-          onSuccess: () => {
-            setJustSaved(true);
-            setTimeout(() => setJustSaved(false), 2500);
-          },
-        },
-      );
+      const merged = pendingOverridesRef.current ?? {};
+      pendingOverridesRef.current = null;
+      saveTimerRef.current = null;
+      performSave(merged);
     }, AUTOSAVE_DELAY_MS);
   };
 
