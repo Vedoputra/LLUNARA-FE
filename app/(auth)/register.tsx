@@ -109,7 +109,6 @@ export default function RegisterScreen() {
                 onChangeText={onChange}
                 onBlur={onBlur}
                 error={errors.password?.message}
-                helperText={errors.password ? undefined : 'Minimal 8 karakter'}
                 containerStyle={styles.field}
                 leftElement={<Feather name="lock" size={18} color={theme.colors.textMuted} />}
                 rightElement={
@@ -211,8 +210,8 @@ const styles = StyleSheet.create({
   content: { flexGrow: 1, padding: 20, justifyContent: 'center' },
   header: { alignItems: 'center', marginBottom: 24, gap: 4 },
   mascot: { width: 88, height: 88, marginBottom: 8 },
-  card: { gap: 4 },
-  field: { marginBottom: 16 },
+  card: { gap: 0 },
+  field: { marginBottom: 10 },
   formError: { marginBottom: 8 },
   submitButton: { marginTop: 8 },
   footerRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
