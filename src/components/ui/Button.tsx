@@ -44,15 +44,15 @@ export function Button({
       accessibilityLabel={label}
       accessibilityState={{ disabled: isDisabled, busy: loading }}
       disabled={isDisabled}
-      style={({ pressed }) => [
+      style={(state) => [
         styles.base,
         {
           backgroundColor,
           borderRadius: 18,
-          opacity: isDisabled ? 0.5 : pressed ? 0.85 : 1,
-          transform: [{ scale: pressed && !isDisabled ? 0.98 : 1 }],
+          opacity: isDisabled ? 0.5 : state.pressed ? 0.85 : 1,
+          transform: [{ scale: state.pressed && !isDisabled ? 0.98 : 1 }],
         },
-        typeof style === 'function' ? style({ pressed }) : style,
+        typeof style === 'function' ? style(state) : style,
       ]}
       {...rest}
     >

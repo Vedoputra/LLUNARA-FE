@@ -18,15 +18,15 @@ export function Chip({ label, selected = false, icon, style, ...rest }: ChipProp
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ selected }}
-      style={({ pressed }) => [
+      style={(state) => [
         styles.base,
         {
           backgroundColor: selected ? theme.colors.primarySoft : theme.colors.surface,
           borderColor: selected ? theme.colors.primary : theme.colors.border,
           borderRadius: theme.radius.full,
-          opacity: pressed ? 0.85 : 1,
+          opacity: state.pressed ? 0.85 : 1,
         },
-        typeof style === 'function' ? style({ pressed }) : style,
+        typeof style === 'function' ? style(state) : style,
       ]}
       {...rest}
     >
