@@ -1,11 +1,13 @@
+import { Feather } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, Text } from '@/components/ui';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { env } from '@/constants/env';
 import { useTheme } from '@/hooks/useTheme';
+import { useDeleteSymptom, useSymptoms } from '@/hooks/useSymptoms';
 import { useAuthStore } from '@/store/authStore';
 import type { HealthResponse } from '@/types/api';
 
@@ -38,6 +40,8 @@ export default function PengaturanScreen() {
   const theme = useTheme();
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
+  const symptomsQuery = useSymptoms();
+  const deleteSymptom = useDeleteSymptom();
   const [state, setState] = useState<ConnectionState>({ status: 'checking' });
   const [signingOut, setSigningOut] = useState(false);
 
@@ -55,18 +59,54 @@ export default function PengaturanScreen() {
     await signOut();
   };
 
+  const customSymptoms = (symptomsQuery.data ?? []).filter((symptom) => symptom.is_custom);
+
+  const handleDeleteSymptom = (id: string, name: string) => {
+    Alert.alert(
+      'Hapus tag gejala',
+      `Hapus tag "${name}"? Tag ini tidak akan muncul lagi di pilihan gejala.`,
+      [
+        { text: 'Batal', style: 'cancel' },
+        { text: 'Hapus', style: 'destructive', onPress: () => deleteSymptom.mutate(id) },
+      ],
+    );
+  };
+
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: theme.colors.background }]}
       edges={['top']}
     >
       <ScreenHeader title="Pengaturan" />
-      <View style={styles.content}>
+      <ScrollView contentContainerStyle={styles.content}>
         <Text muted style={styles.subtitle}>
           Masuk sebagai {user?.email}
         </Text>
 
-        <Text variant="caption" muted style={styles.diagnosticLabel}>
+        <Text variant="caption" muted style={styles.sectionLabel}>
+          TAG GEJALA KUSTOM
+        </Text>
+        <Card style={styles.card}>
+          {customSymptoms.length === 0 ? (
+            <Text muted>Belum ada tag gejala kustom. Tambahkan dari layar Catat hari ini.</Text>
+          ) : (
+            customSymptoms.map((symptom) => (
+              <View key={symptom.id} style={styles.symptomRow}>
+                <Text>{symptom.name}</Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Hapus tag ${symptom.name}`}
+                  onPress={() => handleDeleteSymptom(symptom.id, symptom.name)}
+                  hitSlop={8}
+                >
+                  <Feather name="trash-2" size={18} color={theme.colors.danger} />
+                </Pressable>
+              </View>
+            ))
+          )}
+        </Card>
+
+        <Text variant="caption" muted style={styles.sectionLabel}>
           DIAGNOSTIK KONEKSI (sementara — akan pindah ke FE-7.x)
         </Text>
         <Card style={styles.card}>
@@ -106,16 +146,22 @@ export default function PengaturanScreen() {
           onPress={handleSignOut}
           style={styles.button}
         />
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { flex: 1, padding: 20, gap: 12 },
+  content: { padding: 20, gap: 12, paddingBottom: 40 },
   subtitle: { marginBottom: 8 },
-  diagnosticLabel: { marginTop: 8 },
+  sectionLabel: { marginTop: 8 },
   card: { gap: 8 },
+  symptomRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 44,
+  },
   button: { marginTop: 4 },
 });

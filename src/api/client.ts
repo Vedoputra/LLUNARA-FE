@@ -6,7 +6,7 @@ import { supabase } from './supabase';
 const TIMEOUT_MS = 60_000;
 const MAX_RETRIES = 2;
 
-type JsonBody = Record<string, unknown> | unknown[];
+type JsonBody = object;
 
 let unauthorizedHandler: (() => void) | null = null;
 

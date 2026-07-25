@@ -36,6 +36,10 @@ export interface ApiErrorBody {
   };
 }
 
+export interface Envelope<T> {
+  data: T;
+}
+
 export interface MeResponse {
   user_id: string;
 }
