@@ -20,14 +20,14 @@ const FLOW_OPTIONS: { value: FlowIntensity; label: string; opacity: number }[] =
   { value: 'heavy', label: 'Berat', opacity: 1 },
 ];
 
-const MOOD_OPTIONS: { value: string; emoji: string }[] = [
-  { value: 'senang', emoji: '😊' },
-  { value: 'tenang', emoji: '😌' },
-  { value: 'biasa', emoji: '😐' },
+const MOOD_OPTIONS: { value: string; emoji: string; icon?: number }[] = [
+  { value: 'senang', emoji: '😊', icon: require('../../assets/moods/senang.png') },
+  { value: 'tenang', emoji: '😌', icon: require('../../assets/moods/tenang.png') },
+  { value: 'biasa', emoji: '😐', icon: require('../../assets/moods/biasa.png') },
   { value: 'sensitif', emoji: '😳' },
-  { value: 'cemas', emoji: '😟' },
-  { value: 'sedih', emoji: '😢' },
-  { value: 'mudah marah', emoji: '😠' },
+  { value: 'cemas', emoji: '😟', icon: require('../../assets/moods/cemas.png') },
+  { value: 'sedih', emoji: '😢', icon: require('../../assets/moods/sedih.png') },
+  { value: 'mudah marah', emoji: '😠', icon: require('../../assets/moods/mudah-marah.png') },
 ];
 
 const AUTOSAVE_DELAY_MS = 800;
@@ -234,7 +234,11 @@ export default function DailyLogScreen() {
                   },
                 ]}
               >
-                <Text variant="body">{option.emoji}</Text>
+                {option.icon ? (
+                  <Image source={option.icon} style={styles.moodIcon} />
+                ) : (
+                  <Text variant="body">{option.emoji}</Text>
+                )}
                 <Text variant="body" color={selected ? theme.colors.primary : theme.colors.text}>
                   {option.value}
                 </Text>
@@ -257,7 +261,7 @@ export default function DailyLogScreen() {
         {hasKram ? (
           <Card style={styles.empathyCard}>
             <Image
-              source={require('../../assets/mascot/luna-cozy.png')}
+              source={require('../../assets/mascot/luna-tea.png')}
               style={styles.empathyImage}
               resizeMode="contain"
             />
@@ -364,6 +368,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     borderWidth: 1.5,
   },
+  moodIcon: { width: 24, height: 24, borderRadius: 12 },
   empathyCard: { flexDirection: 'row', gap: 12, alignItems: 'center' },
   empathyImage: { width: 56, height: 56 },
   empathyText: { flex: 1, gap: 2 },

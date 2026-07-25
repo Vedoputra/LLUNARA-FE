@@ -21,6 +21,13 @@ const PHASE_LABELS: Record<CyclePhase, string> = {
   luteal: 'Fase luteal',
 };
 
+const PHASE_ICONS: Record<CyclePhase, number> = {
+  menstrual: require('../../assets/phases/menstrual.png'),
+  follicular: require('../../assets/phases/follicular.png'),
+  ovulation: require('../../assets/phases/ovulation.png'),
+  luteal: require('../../assets/phases/luteal.png'),
+};
+
 const FLOW_LABELS: Record<FlowIntensity, string> = {
   light: 'Ringan',
   medium: 'Sedang',
@@ -120,6 +127,10 @@ export default function BerandaScreen() {
                         { backgroundColor: theme.colors.cycle[prediction.current_phase] },
                       ]}
                     >
+                      <Image
+                        source={PHASE_ICONS[prediction.current_phase]}
+                        style={styles.phaseIcon}
+                      />
                       <Text variant="caption">{PHASE_LABELS[prediction.current_phase]}</Text>
                     </View>
                   ) : null}
@@ -216,11 +227,18 @@ const styles = StyleSheet.create({
   heroMascot: { width: 96, height: 96 },
   heroText: { flex: 1, gap: 4 },
   phasePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     alignSelf: 'flex-start',
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 4,
     marginTop: 2,
+  },
+  phaseIcon: {
+    width: 16,
+    height: 16,
   },
   countdownText: { marginTop: 4 },
   logCard: { gap: 8 },

@@ -1,8 +1,7 @@
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/ui';
 import { useTheme } from '@/hooks/useTheme';
-import { hexToRgba } from '@/utils/color';
 
 export function CalendarLegend() {
   const theme = useTheme();
@@ -10,7 +9,7 @@ export function CalendarLegend() {
   return (
     <View style={styles.container}>
       <View style={styles.item}>
-        <View style={[styles.swatch, { backgroundColor: theme.colors.cycle.menstrual }]} />
+        <Image source={require('../../../assets/phases/menstrual.png')} style={styles.icon} />
         <Text variant="caption" muted>
           Menstruasi
         </Text>
@@ -27,12 +26,7 @@ export function CalendarLegend() {
         </Text>
       </View>
       <View style={styles.item}>
-        <View
-          style={[
-            styles.swatch,
-            { backgroundColor: hexToRgba(theme.colors.cycle.ovulation, 0.25) },
-          ]}
-        />
+        <Image source={require('../../../assets/phases/ovulation.png')} style={styles.icon} />
         <Text variant="caption" muted>
           Masa subur
         </Text>
@@ -59,6 +53,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+  },
+  icon: {
+    width: 16,
+    height: 16,
   },
   swatch: {
     width: 14,
