@@ -90,7 +90,7 @@ export default function LoginScreen() {
                 onChangeText={onChange}
                 onBlur={onBlur}
                 error={errors.email?.message}
-                style={styles.field}
+                containerStyle={styles.field}
               />
             )}
           />
@@ -108,7 +108,7 @@ export default function LoginScreen() {
                 onChangeText={onChange}
                 onBlur={onBlur}
                 error={errors.password?.message}
-                style={styles.field}
+                containerStyle={styles.field}
                 rightElement={
                   <Pressable
                     accessibilityRole="button"

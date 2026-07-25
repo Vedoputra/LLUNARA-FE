@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { TextInput, View, StyleSheet, type TextInputProps } from 'react-native';
+import {
+  TextInput,
+  View,
+  StyleSheet,
+  type StyleProp,
+  type TextInputProps,
+  type ViewStyle,
+} from 'react-native';
 
 import { useTheme } from '@/hooks/useTheme';
 
@@ -11,6 +18,7 @@ export interface InputProps extends TextInputProps {
   helperText?: string;
   leftElement?: React.ReactNode;
   rightElement?: React.ReactNode;
+  containerStyle?: StyleProp<ViewStyle>;
 }
 
 export function Input({
@@ -19,6 +27,7 @@ export function Input({
   helperText,
   leftElement,
   rightElement,
+  containerStyle,
   style,
   onFocus,
   onBlur,
@@ -28,14 +37,27 @@ export function Input({
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <View>
+    <View style={containerStyle}>
       {label ? (
         <Text variant="caption" muted style={styles.label}>
           {label}
         </Text>
       ) : null}
-      <View style={styles.inputWrapper}>
-        {leftElement ? <View style={styles.leftElement}>{leftElement}</View> : null}
+      <View
+        style={[
+          styles.fieldBox,
+          {
+            backgroundColor: theme.colors.surfaceVariant,
+            borderColor: error
+              ? theme.colors.danger
+              : isFocused
+                ? theme.colors.primary
+                : theme.colors.border,
+            borderRadius: theme.radius.md,
+          },
+        ]}
+      >
+        {leftElement ? <View style={styles.iconSlot}>{leftElement}</View> : null}
         <TextInput
           accessibilityLabel={label}
           placeholderTextColor={theme.colors.textMuted}
@@ -50,24 +72,15 @@ export function Input({
           style={[
             styles.input,
             {
-              backgroundColor: theme.colors.surfaceVariant,
-              borderColor: error
-                ? theme.colors.danger
-                : isFocused
-                  ? theme.colors.primary
-                  : theme.colors.border,
-              borderRadius: theme.radius.md,
               color: theme.colors.text,
               fontFamily: theme.fontFamilies.body,
               fontSize: theme.typography.body.fontSize,
-              paddingLeft: leftElement ? 44 : 16,
-              paddingRight: rightElement ? 44 : 16,
             },
             style,
           ]}
           {...rest}
         />
-        {rightElement ? <View style={styles.rightElement}>{rightElement}</View> : null}
+        {rightElement ? <View style={styles.iconSlot}>{rightElement}</View> : null}
       </View>
       {error ? (
         <Text variant="caption" color={theme.colors.danger} style={styles.helper}>
@@ -86,29 +99,19 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 6,
   },
-  inputWrapper: {
-    justifyContent: 'center',
-  },
-  input: {
+  fieldBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
     minHeight: 54,
     borderWidth: 1,
     paddingHorizontal: 16,
+    gap: 10,
+  },
+  input: {
+    flex: 1,
     paddingVertical: 12,
   },
-  leftElement: {
-    position: 'absolute',
-    left: 12,
-    minHeight: 44,
-    minWidth: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 1,
-  },
-  rightElement: {
-    position: 'absolute',
-    right: 12,
-    minHeight: 44,
-    minWidth: 44,
+  iconSlot: {
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -90,7 +90,7 @@ export default function RegisterScreen() {
                 onChangeText={onChange}
                 onBlur={onBlur}
                 error={errors.email?.message}
-                style={styles.field}
+                containerStyle={styles.field}
                 leftElement={<Feather name="mail" size={18} color={theme.colors.textMuted} />}
               />
             )}
@@ -110,7 +110,7 @@ export default function RegisterScreen() {
                 onBlur={onBlur}
                 error={errors.password?.message}
                 helperText={errors.password ? undefined : 'Minimal 8 karakter'}
-                style={styles.field}
+                containerStyle={styles.field}
                 leftElement={<Feather name="lock" size={18} color={theme.colors.textMuted} />}
                 rightElement={
                   <Pressable
@@ -145,7 +145,7 @@ export default function RegisterScreen() {
                 onChangeText={onChange}
                 onBlur={onBlur}
                 error={errors.confirmPassword?.message}
-                style={styles.field}
+                containerStyle={styles.field}
                 leftElement={<Feather name="shield" size={18} color={theme.colors.textMuted} />}
                 rightElement={
                   <Pressable
@@ -197,9 +197,6 @@ export default function RegisterScreen() {
         </Card>
 
         <View style={styles.footerNote}>
-          <View style={[styles.heartBadge, { backgroundColor: theme.colors.primarySoft }]}>
-            <Feather name="heart" size={16} color={theme.colors.primary} />
-          </View>
           <Text variant="caption" muted style={styles.tagline}>
             Luna akan menemanimu di setiap fase siklusmu dengan penuh cinta.
           </Text>
@@ -220,12 +217,5 @@ const styles = StyleSheet.create({
   submitButton: { marginTop: 8 },
   footerRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 20 },
   footerNote: { alignItems: 'center', marginTop: 24, gap: 8 },
-  heartBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
   tagline: { textAlign: 'center', fontStyle: 'italic', paddingHorizontal: 24 },
 });
