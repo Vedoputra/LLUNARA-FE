@@ -20,6 +20,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { queryClient } from '@/api/queryClient';
 import { AppLockGate } from '@/components/AppLockGate';
 import { OfflineBanner } from '@/components/feedback';
+import { SplashIntro } from '@/components/SplashIntro';
 import { useAuthStore } from '@/store/authStore';
 import { useSettingsStore } from '@/store/settingsStore';
 
@@ -43,6 +44,7 @@ export default function RootLayout() {
   const appLockEnabled = useSettingsStore((state) => state.appLockEnabled);
 
   const [isLocked, setIsLocked] = useState(appLockEnabled);
+  const [introDone, setIntroDone] = useState(false);
   const backgroundedAtRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -78,6 +80,10 @@ export default function RootLayout() {
 
   if (!appReady) {
     return null;
+  }
+
+  if (!introDone) {
+    return <SplashIntro onFinish={() => setIntroDone(true)} />;
   }
 
   return (
