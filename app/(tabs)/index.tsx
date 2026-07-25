@@ -3,30 +3,18 @@ import { router } from 'expo-router';
 import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ConfidenceBadge } from '@/components/ConfidenceBadge';
 import { ErrorState, LoadingState } from '@/components/feedback';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
+import { PhaseIndicator } from '@/components/PhaseIndicator';
 import { Button, Card, Text } from '@/components/ui';
 import { useCycleActions } from '@/hooks/useCycleActions';
 import { useCycles, useCyclePrediction } from '@/hooks/useCycles';
 import { useDailyLogs } from '@/hooks/useDailyLogs';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuthStore } from '@/store/authStore';
-import type { CyclePhase, FlowIntensity } from '@/types/api';
+import type { FlowIntensity } from '@/types/api';
 import { diffInDays, formatLongDate, todayISO } from '@/utils/date';
-
-const PHASE_LABELS: Record<CyclePhase, string> = {
-  menstrual: 'Fase menstruasi',
-  follicular: 'Fase folikular',
-  ovulation: 'Fase ovulasi',
-  luteal: 'Fase luteal',
-};
-
-const PHASE_ICONS: Record<CyclePhase, number> = {
-  menstrual: require('../../assets/phases/menstrual.png'),
-  follicular: require('../../assets/phases/follicular.png'),
-  ovulation: require('../../assets/phases/ovulation.png'),
-  luteal: require('../../assets/phases/luteal.png'),
-};
 
 const FLOW_LABELS: Record<FlowIntensity, string> = {
   light: 'Ringan',
@@ -121,18 +109,7 @@ export default function BerandaScreen() {
                     {prediction?.day_of_cycle ?? '—'}
                   </Text>
                   {prediction?.current_phase ? (
-                    <View
-                      style={[
-                        styles.phasePill,
-                        { backgroundColor: theme.colors.cycle[prediction.current_phase] },
-                      ]}
-                    >
-                      <Image
-                        source={PHASE_ICONS[prediction.current_phase]}
-                        style={styles.phaseIcon}
-                      />
-                      <Text variant="caption">{PHASE_LABELS[prediction.current_phase]}</Text>
-                    </View>
+                    <PhaseIndicator phase={prediction.current_phase} />
                   ) : null}
                   <Text variant="caption" muted style={styles.countdownText}>
                     {daysUntilPeriod != null
@@ -207,12 +184,11 @@ export default function BerandaScreen() {
           )}
         </Card>
 
-        {prediction?.confidence === 'low' ? (
-          <Card style={styles.confidenceCard}>
-            <Text variant="caption" muted>
-              Perkiraan awal — akurasi akan meningkat setelah beberapa siklus tercatat.
-            </Text>
-          </Card>
+        {prediction ? (
+          <ConfidenceBadge
+            confidence={prediction.confidence}
+            basedOnCycles={prediction.based_on_cycles}
+          />
         ) : null}
       </ScrollView>
     </SafeAreaView>
@@ -226,24 +202,9 @@ const styles = StyleSheet.create({
   heroRow: { flexDirection: 'row', gap: 16, alignItems: 'center' },
   heroMascot: { width: 96, height: 96 },
   heroText: { flex: 1, gap: 4 },
-  phasePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    alignSelf: 'flex-start',
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    marginTop: 2,
-  },
-  phaseIcon: {
-    width: 16,
-    height: 16,
-  },
   countdownText: { marginTop: 4 },
   logCard: { gap: 8 },
   logCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   logChipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   miniChip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
-  confidenceCard: {},
 });

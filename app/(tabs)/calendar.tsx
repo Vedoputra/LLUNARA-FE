@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Button, Card, Sheet, Text } from '@/components/ui';
 import { CalendarDay, type DayMarking } from '@/components/calendar/CalendarDay';
 import { CalendarLegend } from '@/components/calendar/CalendarLegend';
+import { ConfidenceBadge } from '@/components/ConfidenceBadge';
 import { EmptyState, ErrorState, LoadingState } from '@/components/feedback';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { useTheme } from '@/hooks/useTheme';
@@ -66,6 +67,13 @@ export default function KalenderScreen() {
         marks[cursor] = { ...marks[cursor], isFertile: true };
         cursor = addDaysISO(cursor, 1);
       }
+    }
+
+    if (prediction?.estimated_ovulation) {
+      marks[prediction.estimated_ovulation] = {
+        ...marks[prediction.estimated_ovulation],
+        isOvulationDay: true,
+      };
     }
 
     for (const log of dailyLogsQuery.data ?? []) {
@@ -191,6 +199,13 @@ export default function KalenderScreen() {
           </View>
         </Card>
 
+        {prediction ? (
+          <ConfidenceBadge
+            confidence={prediction.confidence}
+            basedOnCycles={prediction.based_on_cycles}
+          />
+        ) : null}
+
         {cycles.length === 0 ? (
           <EmptyState
             title="Belum ada catatan siklus"
@@ -208,9 +223,11 @@ export default function KalenderScreen() {
                 ? 'Hari menstruasi'
                 : selectedMarking?.isPredicted
                   ? 'Perkiraan menstruasi'
-                  : selectedMarking?.isFertile
-                    ? 'Perkiraan masa subur'
-                    : 'Belum ada catatan'}
+                  : selectedMarking?.isOvulationDay
+                    ? 'Perkiraan hari ovulasi'
+                    : selectedMarking?.isFertile
+                      ? 'Perkiraan masa subur'
+                      : 'Belum ada catatan'}
             </Text>
 
             <Button

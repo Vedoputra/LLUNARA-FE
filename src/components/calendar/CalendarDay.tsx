@@ -8,6 +8,7 @@ export interface DayMarking {
   isMenstrual?: boolean;
   isPredicted?: boolean;
   isFertile?: boolean;
+  isOvulationDay?: boolean;
   hasSymptom?: boolean;
 }
 
@@ -36,9 +37,11 @@ export function CalendarDay({ date, state, marking, onPress }: CalendarDayProps)
 
   const borderColor = marking?.isPredicted
     ? theme.colors.cycle.predicted
-    : isToday
-      ? theme.colors.primary
-      : 'transparent';
+    : marking?.isOvulationDay
+      ? theme.colors.cycle.ovulation
+      : isToday
+        ? theme.colors.primary
+        : 'transparent';
 
   const borderStyle = marking?.isPredicted ? 'dashed' : 'solid';
   const textColor = marking?.isMenstrual
