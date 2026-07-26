@@ -114,12 +114,14 @@ export default function BerandaScreen() {
                   <Text variant="caption" muted>
                     Hari ke-
                   </Text>
-                  <Text variant="display" color={theme.colors.primary}>
-                    {prediction?.day_of_cycle ?? '—'}
-                  </Text>
-                  {prediction?.current_phase ? (
-                    <PhaseIndicator phase={prediction.current_phase} />
-                  ) : null}
+                  <View style={styles.dayRow}>
+                    <Text variant="display" color={theme.colors.primary} style={styles.dayNumber}>
+                      {prediction?.day_of_cycle ?? '—'}
+                    </Text>
+                    {prediction?.current_phase ? (
+                      <PhaseIndicator phase={prediction.current_phase} />
+                    ) : null}
+                  </View>
                   <Text variant="caption" muted style={styles.countdownText}>
                     {daysUntilPeriod != null
                       ? daysUntilPeriod > 0
@@ -232,8 +234,16 @@ const styles = StyleSheet.create({
   content: { padding: 20, gap: 16, paddingBottom: 40 },
   heroCard: {},
   heroRow: { flexDirection: 'row', gap: 16, alignItems: 'center' },
-  heroMascot: { width: 96, height: 96 },
+  heroMascot: { width: 80, height: 80 },
   heroText: { flex: 1, gap: 4 },
+  dayRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    rowGap: 4,
+  },
+  dayNumber: { fontSize: 46, lineHeight: 50 },
   countdownText: { marginTop: 4 },
   logCard: { gap: 8 },
   logCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },

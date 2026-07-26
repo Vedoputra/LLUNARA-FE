@@ -27,7 +27,7 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.border,
-          paddingBottom: insets.bottom + 8,
+          paddingBottom: insets.bottom + 4,
         },
       ]}
     >
@@ -59,8 +59,15 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             style={styles.item}
           >
             <View style={[styles.pill, isFocused && { backgroundColor: theme.colors.primarySoft }]}>
-              {renderIcon?.(color, 20)}
-              <Text variant="caption" color={color} style={styles.label}>
+              {renderIcon?.(color, 18)}
+              <Text
+                variant="caption"
+                color={color}
+                numberOfLines={1}
+                adjustsFontSizeToFit
+                minimumFontScale={0.8}
+                style={styles.label}
+              >
                 {label}
               </Text>
             </View>
@@ -75,23 +82,25 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    paddingTop: 8,
-    paddingHorizontal: 8,
+    paddingTop: 4,
+    paddingHorizontal: 4,
   },
   item: {
     flex: 1,
     minHeight: 44,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   pill: {
     alignItems: 'center',
-    gap: 2,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
+    gap: 1,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
     borderRadius: 999,
-    minWidth: 64,
+    minWidth: 56,
   },
   label: {
-    fontSize: 11,
+    fontSize: 10,
+    maxWidth: 68,
   },
 });
