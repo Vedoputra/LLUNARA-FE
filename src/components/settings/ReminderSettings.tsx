@@ -8,7 +8,9 @@ import { useNotificationPermission } from '@/hooks/useNotificationPermission';
 import { useReminders, useUpsertReminder, type UpsertReminderInput } from '@/hooks/useReminders';
 import { useTheme } from '@/hooks/useTheme';
 import { getScheduledNotifications } from '@/services/notifications';
+import { useSettingsStore } from '@/store/settingsStore';
 import type { Reminder, ReminderType } from '@/types/api';
+import { waterReminderHours } from '@/utils/waterReminder';
 
 const TIME_PRESETS = [
   '06:00',
@@ -22,6 +24,14 @@ const TIME_PRESETS = [
   '22:00',
 ];
 
+const WATER_INTERVAL_PRESETS = [1, 2, 3, 4, 6];
+const WATER_START_PRESETS = [6, 7, 8, 9, 10];
+const WATER_END_PRESETS = [17, 18, 19, 20, 21, 22];
+
+function formatHour(hour: number): string {
+  return `${String(hour).padStart(2, '0')}:00`;
+}
+
 function findReminder(reminders: Reminder[], type: ReminderType) {
   return reminders.find((reminder) => reminder.type === type);
 }
@@ -32,7 +42,11 @@ export function ReminderSettings() {
   const upsertReminder = useUpsertReminder();
   const permission = useNotificationPermission();
   const [timePickerVisible, setTimePickerVisible] = useState(false);
+  const [waterSheetVisible, setWaterSheetVisible] = useState(false);
   const [scheduled, setScheduled] = useState<NotificationRequest[]>([]);
+
+  const waterReminder = useSettingsStore((state) => state.waterReminder);
+  const setWaterReminder = useSettingsStore((state) => state.setWaterReminder);
 
   const reminders = remindersQuery.data ?? [];
   const periodReminder = findReminder(reminders, 'period_upcoming');
@@ -41,7 +55,7 @@ export function ReminderSettings() {
 
   useEffect(() => {
     getScheduledNotifications().then(setScheduled);
-  }, [remindersQuery.data]);
+  }, [remindersQuery.data, waterReminder]);
 
   const ensurePermission = async (): Promise<boolean> => {
     if (permission.isGranted) return true;
@@ -89,6 +103,17 @@ export function ReminderSettings() {
     saveReminder('medication', { time_of_day: time, is_enabled: true });
   };
 
+  const handleToggleWater = async () => {
+    const nextEnabled = !waterReminder.enabled;
+    if (nextEnabled) {
+      const granted = await ensurePermission();
+      if (!granted) return;
+    }
+    setWaterReminder({ enabled: nextEnabled });
+  };
+
+  const waterHours = waterReminderHours(waterReminder);
+
   return (
     <View style={styles.container}>
       <View style={styles.row}>
@@ -129,6 +154,31 @@ export function ReminderSettings() {
         />
       </View>
 
+      <View style={styles.row}>
+        <Feather name="droplet" size={18} color={theme.colors.textMuted} />
+        <Text style={styles.rowLabel}>Pengingat minum</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Atur jarak dan rentang jam pengingat minum"
+          onPress={() => setWaterSheetVisible(true)}
+          style={[styles.timeChip, { backgroundColor: theme.colors.surfaceVariant }]}
+        >
+          <Text variant="caption">tiap {waterReminder.intervalHours} jam</Text>
+        </Pressable>
+        <Switch
+          value={waterReminder.enabled}
+          onValueChange={handleToggleWater}
+          trackColor={{ true: theme.colors.primary }}
+        />
+      </View>
+      {waterReminder.enabled ? (
+        <Text variant="caption" muted style={styles.waterHint}>
+          {waterHours.length > 0
+            ? `Muncul pukul ${waterHours.map(formatHour).join(', ')}.`
+            : 'Rentang jam belum valid — jam selesai harus setelah jam mulai.'}
+        </Text>
+      ) : null}
+
       <Text variant="caption" muted style={styles.scheduledLabel}>
         PENGINGAT TERJADWAL DI PERANGKAT INI ({scheduled.length})
       </Text>
@@ -159,6 +209,59 @@ export function ReminderSettings() {
           ))}
         </View>
       </Sheet>
+
+      <Sheet visible={waterSheetVisible} onClose={() => setWaterSheetVisible(false)}>
+        <Text variant="subtitle" style={styles.sheetTitle}>
+          Pengingat minum
+        </Text>
+
+        <Text variant="caption" muted style={styles.sheetGroupLabel}>
+          MUNCUL SETIAP
+        </Text>
+        <View style={styles.timeGrid}>
+          {WATER_INTERVAL_PRESETS.map((hours) => (
+            <Chip
+              key={hours}
+              label={`${hours} jam`}
+              selected={waterReminder.intervalHours === hours}
+              onPress={() => setWaterReminder({ intervalHours: hours })}
+            />
+          ))}
+        </View>
+
+        <Text variant="caption" muted style={styles.sheetGroupLabel}>
+          MULAI PUKUL
+        </Text>
+        <View style={styles.timeGrid}>
+          {WATER_START_PRESETS.map((hour) => (
+            <Chip
+              key={hour}
+              label={formatHour(hour)}
+              selected={waterReminder.startHour === hour}
+              onPress={() => setWaterReminder({ startHour: hour })}
+            />
+          ))}
+        </View>
+
+        <Text variant="caption" muted style={styles.sheetGroupLabel}>
+          BERHENTI SETELAH
+        </Text>
+        <View style={styles.timeGrid}>
+          {WATER_END_PRESETS.map((hour) => (
+            <Chip
+              key={hour}
+              label={formatHour(hour)}
+              selected={waterReminder.endHour === hour}
+              onPress={() => setWaterReminder({ endHour: hour })}
+            />
+          ))}
+        </View>
+
+        <Text variant="caption" muted style={styles.sheetNote}>
+          LLunara hanya mengingatkan waktunya, tanpa menghitung target atau menilai seberapa banyak
+          yang kamu minum.
+        </Text>
+      </Sheet>
     </View>
   );
 }
@@ -177,7 +280,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
+  waterHint: { marginTop: -4 },
   scheduledLabel: { marginTop: 8, letterSpacing: 0.5 },
   sheetTitle: { marginBottom: 12 },
+  sheetGroupLabel: { letterSpacing: 0.5, marginBottom: 8 },
+  sheetNote: { paddingBottom: 8 },
   timeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingBottom: 16 },
 });

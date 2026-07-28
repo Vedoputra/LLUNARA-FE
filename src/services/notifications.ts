@@ -1,8 +1,10 @@
 import * as Notifications from 'expo-notifications';
 import { Linking, Platform } from 'react-native';
 
+import type { WaterReminderConfig } from '@/store/settingsStore';
 import type { CyclePrediction, Reminder } from '@/types/api';
 import { addDaysISO } from '@/utils/date';
+import { waterReminderHours } from '@/utils/waterReminder';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -58,8 +60,30 @@ async function scheduleOnDate(dateISO: string, hour: number, minute: number, bod
   });
 }
 
-export async function scheduleAll(prediction: CyclePrediction, reminders: Reminder[]) {
+async function scheduleWaterReminders(config: WaterReminderConfig) {
+  if (!config.enabled) return;
+
+  for (const hour of waterReminderHours(config)) {
+    await Notifications.scheduleNotificationAsync({
+      content: { title: 'LLunara', body: 'Sudah minum air putih hari ini?' },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour,
+        minute: 0,
+        channelId: ANDROID_CHANNEL_ID,
+      },
+    });
+  }
+}
+
+export async function scheduleAll(
+  prediction: CyclePrediction,
+  reminders: Reminder[],
+  waterReminder?: WaterReminderConfig,
+) {
   await ensureAndroidChannel();
+
+  if (waterReminder) await scheduleWaterReminders(waterReminder);
 
   for (const reminder of reminders) {
     if (!reminder.is_enabled) continue;
@@ -109,9 +133,13 @@ export async function cancelAll() {
   await Notifications.cancelAllScheduledNotificationsAsync();
 }
 
-export async function rescheduleAll(prediction: CyclePrediction, reminders: Reminder[]) {
+export async function rescheduleAll(
+  prediction: CyclePrediction,
+  reminders: Reminder[],
+  waterReminder?: WaterReminderConfig,
+) {
   await cancelAll();
-  await scheduleAll(prediction, reminders);
+  await scheduleAll(prediction, reminders, waterReminder);
 }
 
 export async function getScheduledNotifications() {
