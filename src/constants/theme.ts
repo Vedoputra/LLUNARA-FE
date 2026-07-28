@@ -2,6 +2,17 @@ export type ColorScheme = 'light' | 'dark';
 
 export type CyclePhase = 'menstrual' | 'follicular' | 'ovulation' | 'luteal' | 'predicted';
 
+export interface GardenPalette {
+  sky: string;
+  cloud: string;
+  ground: string;
+  groundShade: string;
+  soil: string;
+  stem: string;
+  leaf: string;
+  blossomCenter: string;
+}
+
 export interface Palette {
   background: string;
   surface: string;
@@ -15,6 +26,7 @@ export interface Palette {
   danger: string;
   success: string;
   cycle: Record<CyclePhase, string>;
+  garden: GardenPalette;
 }
 
 export const palettes: Record<ColorScheme, Palette> = {
@@ -37,6 +49,16 @@ export const palettes: Record<ColorScheme, Palette> = {
       luteal: '#FFD98E',
       predicted: '#F2789F',
     },
+    garden: {
+      sky: '#FDF1F3',
+      cloud: '#FFFFFF',
+      ground: '#DFEBC8',
+      groundShade: '#CBDFAC',
+      soil: '#D3AF95',
+      stem: '#8FBF7A',
+      leaf: '#A8D293',
+      blossomCenter: '#FFF3D6',
+    },
   },
   dark: {
     background: '#241A20',
@@ -56,6 +78,16 @@ export const palettes: Record<ColorScheme, Palette> = {
       ovulation: '#C3B2E8',
       luteal: '#FFD98E',
       predicted: '#F2789F',
+    },
+    garden: {
+      sky: '#33242B',
+      cloud: '#4A3A41',
+      ground: '#3F4B38',
+      groundShade: '#4C5943',
+      soil: '#7E6150',
+      stem: '#7BA86A',
+      leaf: '#92BC7E',
+      blossomCenter: '#FFE9B5',
     },
   },
 };

@@ -1,11 +1,13 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useState } from 'react';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ConsistencyRing } from '@/components/ConsistencyRing';
 import { ErrorState, LoadingState } from '@/components/feedback';
+import { GardenScene, gardenHeadline, LOGS_PER_STAGE } from '@/components/garden';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
-import { Card, Text } from '@/components/ui';
+import { Card, Sheet, Text } from '@/components/ui';
 import { useGarden } from '@/hooks/useGarden';
 import { useTheme } from '@/hooks/useTheme';
 
@@ -23,6 +25,7 @@ const MOOD_ICONS: Record<string, number> = {
 export default function TamanScreen() {
   const theme = useTheme();
   const gardenQuery = useGarden();
+  const [growthInfoVisible, setGrowthInfoVisible] = useState(false);
 
   if (gardenQuery.isLoading) {
     return (
@@ -51,6 +54,7 @@ export default function TamanScreen() {
   const garden = gardenQuery.data;
   const daysElapsedThisMonth = new Date().getDate();
   const consistencyProgress = garden.logged_days_this_month / Math.max(1, daysElapsedThisMonth);
+  const headline = gardenHeadline(garden.total_logged_days, garden.new_this_week);
 
   return (
     <SafeAreaView
@@ -62,21 +66,25 @@ export default function TamanScreen() {
         <Text muted>Tumbuh bersama setiap catatanmu.</Text>
 
         <Card style={styles.gardenSceneCard} padding={0}>
-          <Image
-            source={require('../../assets/mascot/luna-watering.png')}
-            style={styles.gardenScene}
-            resizeMode="cover"
-          />
+          <GardenScene totalLoggedDays={garden.total_logged_days} />
           <View style={styles.gardenBadge}>
             <View style={[styles.gardenBadgeIcon, { backgroundColor: theme.colors.primarySoft }]}>
               <MaterialCommunityIcons name="sprout" size={18} color={theme.colors.primary} />
             </View>
             <View style={styles.gardenBadgeText}>
-              <Text variant="subtitle">Kebunmu sedang mekar</Text>
+              <Text variant="subtitle">{headline.title}</Text>
               <Text variant="caption" muted>
-                {garden.new_this_week} bunga baru minggu ini
+                {headline.caption}
               </Text>
             </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Bagaimana kebun ini tumbuh?"
+              hitSlop={8}
+              onPress={() => setGrowthInfoVisible(true)}
+            >
+              <Feather name="info" size={18} color={theme.colors.textMuted} />
+            </Pressable>
           </View>
         </Card>
 
@@ -139,6 +147,17 @@ export default function TamanScreen() {
           </Text>
         </View>
       </ScrollView>
+
+      <Sheet visible={growthInfoVisible} onClose={() => setGrowthInfoVisible(false)}>
+        <Text variant="subtitle" style={styles.sheetTitle}>
+          Bagaimana kebun ini tumbuh?
+        </Text>
+        <Text style={styles.sheetBody}>
+          Catatan pertamamu langsung menumbuhkan tunas, lalu setiap {LOGS_PER_STAGE} catatan
+          menambah satu tahap: tunas → berdaun → mekar. Tanaman tidak pernah menyusut walau ada hari
+          yang terlewat.
+        </Text>
+      </Sheet>
     </SafeAreaView>
   );
 }
@@ -147,7 +166,6 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { padding: 20, gap: 16, paddingBottom: 40 },
   gardenSceneCard: { overflow: 'hidden' },
-  gardenScene: { width: '100%', height: 180 },
   gardenBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -184,4 +202,6 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   quoteText: { fontStyle: 'italic', textAlign: 'center' },
+  sheetTitle: { marginBottom: 8 },
+  sheetBody: { marginBottom: 16 },
 });
