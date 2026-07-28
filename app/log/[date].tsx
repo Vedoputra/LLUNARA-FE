@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { SymptomSelector } from '@/components/SymptomSelector';
 import { Button, Card, Text } from '@/components/ui';
+import { WellnessRow } from '@/components/wellness';
 import { LoadingState } from '@/components/feedback';
 import { useCycles } from '@/hooks/useCycles';
 import { useDailyLogs, useDeleteDailyLog, useSaveDailyLog } from '@/hooks/useDailyLogs';
@@ -310,6 +311,11 @@ export default function DailyLogScreen() {
             </View>
           </Card>
         ) : null}
+
+        <Text variant="subtitle" style={styles.sectionLabel}>
+          Wellness
+        </Text>
+        <WellnessRow date={date} />
 
         <Text variant="subtitle" style={styles.sectionLabel}>
           Catatan

@@ -5,9 +5,10 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { BarChartCard, LineChartCard, StackedBarCard } from '@/components/charts';
-import { EmptyState, ErrorState, LoadingState } from '@/components/feedback';
+import { ErrorState, LoadingState } from '@/components/feedback';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
-import { Card, Chip, Text } from '@/components/ui';
+import { Button, Card, Chip, Text } from '@/components/ui';
+import { WellnessHistory } from '@/components/wellness';
 import { useInsightsSummary, useMoodInsights, useSymptomInsights } from '@/hooks/useInsights';
 import { useTheme } from '@/hooks/useTheme';
 import type { CyclePhase, Regularity } from '@/types/api';
@@ -68,24 +69,9 @@ export default function StatistikScreen() {
   }
 
   const summary = summaryQuery.data;
-
-  if (summary && !summary.has_sufficient_data) {
-    return (
-      <SafeAreaView
-        style={[styles.container, { backgroundColor: theme.colors.background }]}
-        edges={['top']}
-      >
-        <ScreenHeader title="Statistik" />
-        <EmptyState
-          title="Belum cukup data"
-          message={summary.message ?? 'Catat beberapa siklus lagi untuk melihat pola siklusmu.'}
-          actionLabel="Ke kalender"
-          actionIcon={<Feather name="calendar" size={18} color={theme.colors.primary} />}
-          onAction={() => router.push('/calendar')}
-        />
-      </SafeAreaView>
-    );
-  }
+  // Data siklus yang belum cukup tidak boleh menyembunyikan riwayat wellness —
+  // keduanya sumber datanya berbeda, jadi bagian siklus saja yang kosong.
+  const hasCycleStats = Boolean(summary?.has_sufficient_data);
 
   const symptoms = symptomsQuery.data?.symptoms ?? [];
   const topSymptoms = symptoms.slice(0, 5);
@@ -130,7 +116,22 @@ export default function StatistikScreen() {
           ))}
         </View>
 
-        {summary ? (
+        {summary && !hasCycleStats ? (
+          <Card style={styles.noticeCard}>
+            <Text variant="subtitle">Belum cukup data siklus</Text>
+            <Text muted>
+              {summary.message ?? 'Catat beberapa siklus lagi untuk melihat pola siklusmu.'}
+            </Text>
+            <Button
+              label="Ke kalender"
+              variant="secondary"
+              icon={<Feather name="calendar" size={18} color={theme.colors.primary} />}
+              onPress={() => router.push('/calendar')}
+            />
+          </Card>
+        ) : null}
+
+        {summary && hasCycleStats ? (
           <>
             <Text variant="subtitle">Ringkasan siklus</Text>
             <View style={styles.statGrid}>
@@ -219,6 +220,8 @@ export default function StatistikScreen() {
             ))}
           </Card>
         ) : null}
+
+        <WellnessHistory />
       </ScrollView>
     </SafeAreaView>
   );
@@ -230,6 +233,7 @@ const styles = StyleSheet.create({
   rangeRow: { flexDirection: 'row', gap: 8 },
   statGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   statCard: { width: '47%', alignItems: 'center', gap: 4 },
+  noticeCard: { gap: 8 },
   moodCard: { gap: 8 },
   moodTitle: { marginBottom: 4 },
   moodRow: { gap: 2, paddingVertical: 4 },
