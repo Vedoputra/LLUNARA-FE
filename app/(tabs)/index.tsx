@@ -4,19 +4,19 @@ import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ConfidenceBadge } from '@/components/ConfidenceBadge';
+import { DailyInsightCard } from '@/components/DailyInsightCard';
 import { ErrorState, LoadingState } from '@/components/feedback';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { PhaseIndicator } from '@/components/PhaseIndicator';
 import { Button, Card, Text } from '@/components/ui';
-import { SleepWidget, WaterWidget, WeightWidget } from '@/components/wellness';
+import { DAILY_MOTIVATIONS, HERO_MASCOTS } from '@/constants/dailyContent';
 import { useCycleActions } from '@/hooks/useCycleActions';
 import { useCycles, useCyclePrediction } from '@/hooks/useCycles';
 import { useDailyLogs } from '@/hooks/useDailyLogs';
 import { useTheme } from '@/hooks/useTheme';
-import { useSaveWellness, useWellness } from '@/hooks/useWellness';
 import { useAuthStore } from '@/store/authStore';
-import { useSettingsStore } from '@/store/settingsStore';
 import type { FlowIntensity } from '@/types/api';
+import { pickForDay } from '@/utils/dailyRotation';
 import { diffInDays, formatLongDate, todayISO } from '@/utils/date';
 
 const FLOW_LABELS: Record<FlowIntensity, string> = {
@@ -40,9 +40,6 @@ export default function BerandaScreen() {
   const cyclesQuery = useCycles();
   const predictionQuery = useCyclePrediction();
   const todayLogQuery = useDailyLogs(today, today);
-  const todayWellnessQuery = useWellness(today, today);
-  const saveWellness = useSaveWellness();
-  const wellnessEnabled = useSettingsStore((state) => state.wellnessEnabled);
   const { confirmStart, confirmEnd, isStarting, isEnding } = useCycleActions();
 
   const cycles = cyclesQuery.data ?? [];
@@ -55,8 +52,10 @@ export default function BerandaScreen() {
     ? diffInDays(today, prediction.next_period_start)
     : null;
 
-  const todayWellness = (todayWellnessQuery.data ?? [])[0];
-  const showWellnessRow = wellnessEnabled.water || wellnessEnabled.sleep || wellnessEnabled.weight;
+  // Offset berbeda supaya kalimat motivasi dan maskot tidak selalu berganti
+  // seirama dengan konten Did You Know.
+  const motivation = pickForDay(DAILY_MOTIVATIONS, today, 1);
+  const heroMascot = pickForDay(HERO_MASCOTS, today, 3) ?? HERO_MASCOTS[0];
 
   if (cyclesQuery.isLoading) {
     return (
@@ -89,21 +88,17 @@ export default function BerandaScreen() {
     >
       <ScreenHeader />
       <ScrollView contentContainerStyle={styles.content}>
-        <View>
+        <View style={styles.greetingBlock}>
           <Text variant="heading">
             {greeting()}
             {displayName ? `, ${displayName}` : ''}
           </Text>
-          <Text muted>{formatLongDate(today)}</Text>
+          {motivation ? <Text muted>{motivation}</Text> : null}
         </View>
 
         <Card style={styles.heroCard}>
           <View style={styles.heroRow}>
-            <Image
-              source={require('../../assets/mascot/luna-sitting.png')}
-              style={styles.heroMascot}
-              resizeMode="contain"
-            />
+            <Image source={heroMascot} style={styles.heroMascot} resizeMode="contain" />
             <View style={styles.heroText}>
               {predictionQuery.isLoading ? (
                 <Text muted>Memuat prediksi...</Text>
@@ -118,9 +113,14 @@ export default function BerandaScreen() {
                     <Text variant="display" color={theme.colors.primary} style={styles.dayNumber}>
                       {prediction?.day_of_cycle ?? '—'}
                     </Text>
-                    {prediction?.current_phase ? (
-                      <PhaseIndicator phase={prediction.current_phase} />
-                    ) : null}
+                    <View style={styles.phaseColumn}>
+                      <Text variant="caption" muted>
+                        {formatLongDate(today)}
+                      </Text>
+                      {prediction?.current_phase ? (
+                        <PhaseIndicator phase={prediction.current_phase} />
+                      ) : null}
+                    </View>
                   </View>
                   <Text variant="caption" muted style={styles.countdownText}>
                     {daysUntilPeriod != null
@@ -195,35 +195,14 @@ export default function BerandaScreen() {
           )}
         </Card>
 
-        {showWellnessRow ? (
-          <View style={styles.wellnessRow}>
-            {wellnessEnabled.water ? (
-              <WaterWidget
-                glasses={todayWellness?.water_glasses ?? null}
-                onChange={(glasses) => saveWellness.mutate({ date: today, water_glasses: glasses })}
-              />
-            ) : null}
-            {wellnessEnabled.sleep ? (
-              <SleepWidget
-                hours={todayWellness?.sleep_hours ?? null}
-                onChange={(hours) => saveWellness.mutate({ date: today, sleep_hours: hours })}
-              />
-            ) : null}
-            {wellnessEnabled.weight ? (
-              <WeightWidget
-                weightKg={todayWellness?.weight_kg ?? null}
-                onChange={(weightKg) => saveWellness.mutate({ date: today, weight_kg: weightKg })}
-              />
-            ) : null}
-          </View>
-        ) : null}
-
+        <DailyInsightCard date={today} />
+        {/* 
         {prediction ? (
           <ConfidenceBadge
             confidence={prediction.confidence}
             basedOnCycles={prediction.based_on_cycles}
           />
-        ) : null}
+        ) : null} */}
       </ScrollView>
     </SafeAreaView>
   );
@@ -232,9 +211,10 @@ export default function BerandaScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { padding: 20, gap: 16, paddingBottom: 40 },
+  greetingBlock: { gap: 2 },
   heroCard: {},
-  heroRow: { flexDirection: 'row', gap: 16, alignItems: 'center' },
-  heroMascot: { width: 80, height: 80 },
+  heroRow: { flexDirection: 'row', gap: 12, alignItems: 'center' },
+  heroMascot: { width: 100, height: 100 },
   heroText: { flex: 1, gap: 4 },
   dayRow: {
     flexDirection: 'row',
@@ -242,12 +222,19 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexWrap: 'wrap',
     rowGap: 4,
+    columnGap: 12,
   },
-  dayNumber: { fontSize: 46, lineHeight: 50 },
-  countdownText: { marginTop: 4 },
+  phaseColumn: { alignItems: 'flex-end', gap: 2, transform: [{ translateY: -8 }] },
+  dayNumber: {
+    fontSize: 55,
+    lineHeight: 80,
+    fontWeight: 'bold',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+  },
+  countdownText: { marginTop: -10 },
   logCard: { gap: 8 },
   logCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   logChipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   miniChip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
-  wellnessRow: { flexDirection: 'row', gap: 12 },
 });

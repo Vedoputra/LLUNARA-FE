@@ -1,0 +1,214 @@
+{
+  "insights": [
+    {
+      "id": "hari-pertama",
+      "kind": "did_you_know",
+      "icon": "menstrual",
+      "body": "Hari pertama menstruasi dihitung sebagai hari ke-1 siklus. Jadi siklus tidak dimulai saat menstruasi berhenti, tapi saat ia mulai."
+    },
+    {
+      "id": "fase-folikular",
+      "kind": "fyi",
+      "icon": "follicular",
+      "body": "Fase folikular dimulai setelah menstruasi. Tubuh sedang menyiapkan sel telur, dan banyak orang merasa energinya perlahan naik di fase ini."
+    },
+    {
+      "id": "ovulasi-singkat",
+      "kind": "fun_fact",
+      "icon": "ovulation",
+      "body": "Ovulasi berlangsung singkat — sel telur umumnya hanya bertahan sekitar 12 sampai 24 jam setelah dilepaskan."
+    },
+    {
+      "id": "jumlah-menstruasi-seumur-hidup",
+      "kind": "did_you_know",
+      "icon": "luna-telescope",
+      "body": "Rata-rata orang mengalami sekitar 450 kali menstruasi sepanjang hidupnya, dari menarche sampai menopause."
+    },
+    {
+      "id": "menarche",
+      "kind": "fyi",
+      "icon": "luna-waving",
+      "body": "Menstruasi pertama disebut menarche, biasanya terjadi di usia 11–14 tahun, meski rentang normalnya cukup lebar."
+    },
+    {
+      "id": "asal-kata-menstruasi",
+      "kind": "fun_fact",
+      "icon": "luteal",
+      "body": "Kata 'menstruasi' berasal dari bahasa Latin 'mensis' yang berarti bulan — karena panjang siklus mendekati siklus bulan (sekitar 29 hari)."
+    },
+    {
+      "id": "kram-penyebab",
+      "kind": "did_you_know",
+      "icon": "luna-cocoa",
+      "body": "Kram menstruasi terjadi karena hormon prostaglandin memicu rahim berkontraksi untuk meluruhkan lapisan dindingnya."
+    },
+    {
+      "id": "warna-darah-berubah",
+      "kind": "fyi",
+      "icon": "menstrual",
+      "body": "Warna darah menstruasi bisa berubah dari merah terang di awal, jadi merah tua, sampai kecoklatan di hari-hari terakhir — ini normal dan terkait usia darahnya."
+    },
+    {
+      "id": "menstruasi-bagian-folikular",
+      "kind": "fyi",
+      "icon": "follicular",
+      "body": "Secara hormonal, hari-hari menstruasi sebenarnya termasuk bagian awal dari fase folikular, bukan fase yang berdiri sendiri."
+    },
+    {
+      "id": "nyeri-ovulasi",
+      "kind": "did_you_know",
+      "icon": "luna-shy",
+      "body": "Sebagian orang merasakan nyeri ringan di satu sisi perut saat ovulasi. Ini punya nama medis sendiri: mittelschmerz."
+    },
+    {
+      "id": "progesteron-turun",
+      "kind": "fyi",
+      "icon": "luteal",
+      "body": "Menstruasi dimulai saat kadar progesteron dan estrogen turun tajam karena tidak terjadi pembuahan pada siklus itu."
+    },
+    {
+      "id": "sinkronisasi-siklus-mitos",
+      "kind": "fun_fact",
+      "icon": "luna-telescope",
+      "body": "Ide bahwa siklus menstruasi teman serumah bisa 'sinkron' ternyata belum didukung kuat oleh penelitian ilmiah — kemungkinan besar cuma kebetulan statistik."
+    },
+    {
+      "id": "durasi-normal",
+      "kind": "fyi",
+      "icon": "luna-autumn",
+      "body": "Durasi menstruasi 3 sampai 7 hari masih dianggap normal, dan bisa berbeda-beda dari satu siklus ke siklus lain pada orang yang sama."
+    },
+    {
+      "id": "sel-telur-bergantian",
+      "kind": "did_you_know",
+      "icon": "ovulation",
+      "body": "Ovarium kiri dan kanan cenderung bergantian melepaskan sel telur, tapi polanya tidak selalu rapi — kadang ovarium yang sama berovulasi dua siklus berturut-turut."
+    },
+    {
+      "id": "pms-umum",
+      "kind": "fyi",
+      "icon": "luna-heart",
+      "body": "Sekitar 90% orang yang menstruasi melaporkan setidaknya satu gejala pramenstruasi (PMS), dari perubahan mood sampai kembung."
+    },
+    {
+      "id": "suhu-basal-indikator",
+      "kind": "did_you_know",
+      "icon": "luna-sleeping",
+      "body": "Mencatat suhu tubuh basal setiap pagi bisa membantu mengenali pola ovulasi, karena suhu naik sedikit setelah sel telur dilepaskan."
+    },
+    {
+      "id": "cairan-serviks-subur",
+      "kind": "fyi",
+      "icon": "ovulation",
+      "body": "Cairan serviks yang licin dan bening seperti putih telur biasanya menandakan masa paling subur dalam siklus."
+    },
+    {
+      "id": "menstrual-cup-kapasitas",
+      "kind": "fun_fact",
+      "icon": "luna-tea",
+      "body": "Menstrual cup umumnya bisa menampung darah lebih banyak dibanding satu pembalut atau tampon, dan bisa dipakai hingga 12 jam tergantung jenisnya."
+    },
+    {
+      "id": "endometriosis-fyi",
+      "kind": "fyi",
+      "icon": "luna-heart",
+      "body": "Endometriosis adalah kondisi ketika jaringan mirip lapisan rahim tumbuh di luar rahim, dan bisa jadi salah satu penyebab nyeri haid yang sangat berat."
+    },
+    {
+      "id": "siklus-tidak-selalu-sama",
+      "kind": "did_you_know",
+      "icon": "luna-cool",
+      "body": "Panjang siklus bisa berbeda beberapa hari dari bulan ke bulan meski pada orang yang sama — jadi variasi kecil itu wajar, bukan tanda ada yang salah."
+    },
+    {
+      "id": "stres-pengaruh-siklus",
+      "kind": "fyi",
+      "icon": "luna-sleeping",
+      "body": "Stres, kurang tidur, perubahan berat badan drastis, dan olahraga berlebihan semuanya bisa memengaruhi keteraturan siklus lewat jalur hormonal."
+    },
+    {
+      "id": "pil-kb-menstruasi",
+      "kind": "fyi",
+      "icon": "luna-chef",
+      "body": "Pendarahan yang muncul saat memakai pil KB kombinasi sebenarnya bukan menstruasi biologis murni, melainkan respons terhadap jeda hormon."
+    },
+    {
+      "id": "rahim-otot-kuat",
+      "kind": "fun_fact",
+      "icon": "luna-star",
+      "body": "Saat kram parah, rahim bisa berkontraksi dengan kekuatan yang mendekati kontraksi ringan persalinan — makanya nyerinya bisa terasa sangat intens."
+    },
+    {
+      "id": "volume-darah-vs-persepsi",
+      "kind": "did_you_know",
+      "icon": "menstrual",
+      "body": "Total darah menstruasi per siklus umumnya hanya sekitar 30–80 ml, meski secara subjektif sering terasa jauh lebih banyak dari itu."
+    },
+    {
+      "id": "menopause-fyi",
+      "kind": "fyi",
+      "icon": "luna-autumn",
+      "body": "Menopause secara medis baru dinyatakan setelah 12 bulan berturut-turut tanpa menstruasi, biasanya terjadi di usia 45–55 tahun."
+    },
+    {
+      "id": "fase-luteal",
+      "kind": "did_you_know",
+      "icon": "luteal",
+      "body": "Fase luteal cenderung paling stabil panjangnya, umumnya sekitar 12–14 hari. Yang lebih sering berubah justru fase sebelum ovulasi."
+    },
+    {
+      "id": "panjang-siklus",
+      "kind": "fyi",
+      "icon": "luna-sitting",
+      "body": "Panjang siklus 21 sampai 35 hari umum ditemukan pada orang dewasa. Angka 28 hari itu rata-rata, bukan patokan."
+    },
+    {
+      "id": "volume-darah",
+      "kind": "fun_fact",
+      "icon": "menstrual",
+      "body": "Total darah menstruasi satu siklus umumnya sekitar 30–80 ml — kira-kira 2 sampai 5 sendok makan, walau sering terasa jauh lebih banyak."
+    },
+    {
+      "id": "suhu-basal",
+      "kind": "did_you_know",
+      "icon": "luna-sleeping",
+      "body": "Suhu tubuh basal biasanya naik sedikit, sekitar 0,3–0,5°C, setelah ovulasi dan tetap naik sampai menstruasi berikutnya datang."
+    },
+    {
+      "id": "cairan-serviks",
+      "kind": "fyi",
+      "icon": "luna-shy",
+      "body": "Tekstur cairan serviks berubah sepanjang siklus — dari kering, lalu lebih licin dan bening mendekati ovulasi, kemudian mengental lagi."
+    },
+    {
+      "id": "jumlah-sel-telur",
+      "kind": "fun_fact",
+      "icon": "luna-star",
+      "body": "Bayi perempuan lahir dengan sekitar 1–2 juta sel telur. Jumlahnya berkurang seiring usia, dan hanya beberapa ratus yang akan berovulasi."
+    },
+    {
+      "id": "tanda-vital",
+      "kind": "did_you_know",
+      "icon": "luna-surprise",
+      "body": "Siklus menstruasi sering disebut sebagai salah satu tanda vital tubuh, karena polanya berkaitan dengan banyak proses lain di dalam tubuh."
+    }
+  ],
+  "motivations": [
+    "Tubuhmu sedang bekerja dengan caranya sendiri. Tidak perlu buru-buru.",
+    "Hari ini tidak harus sempurna. Cukup dijalani.",
+    "Mengenali diri sendiri itu proses panjang, dan kamu sedang menjalaninya.",
+    "Apa pun yang kamu rasakan hari ini, itu valid.",
+    "PCOS itu bagian dari cerita tubuhmu, bukan definisi siapa dirimu.",
+    "Siklus yang tidak teratur bukan berarti kamu gagal menjaga tubuhmu.",
+    "Kamu tidak sendirian. Banyak orang menjalani hari-hari dengan PCOS dan tetap menjalani hidup yang penuh.",
+    "Mengenal pola tubuhmu sendiri, meski tidak sempurna, tetap bentuk kepedulian pada dirimu.",
+    "Masa depan tidak ditentukan oleh satu diagnosis. Kamu masih punya waktu untuk menjalaninya pelan-pelan.",
+    "Telat bukan berarti ada yang rusak. Tubuh kadang butuh waktu lebih untuk menyesuaikan diri.",
+    "Kamu tidak harus menunggu sambil panik. Cukup ditemani rasa tenang, sebisa mungkin.",
+    "Stres atau kelelahan bisa membuat siklus mundur. Tubuhmu sedang bereaksi, bukan mengkhianatimu.",
+    "Kamu boleh khawatir, tapi kekhawatiran itu tidak perlu kamu bawa sendirian sepanjang hari.",
+    "Tubuhmu bukan musuh yang harus dilawan. Ia sedang berusaha menyeimbangkan dirinya sendiri.",
+    "Nilai dirimu tidak diukur dari keteraturan siklusmu. Kamu tetap berharga, hari ini, apa pun kondisinya.",
+    "Kalau rasa khawatir terasa berat, tidak apa-apa untuk bicara dengan orang yang kamu percaya."
+  ]
+}
