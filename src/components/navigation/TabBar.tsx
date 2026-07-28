@@ -27,7 +27,7 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.border,
-          paddingBottom: insets.bottom + 4,
+          paddingBottom: insets.bottom - 20,
         },
       ]}
     >
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: 999,
-    minWidth: 56,
+    minWidth: 80,
   },
   label: {
     fontSize: 10,
