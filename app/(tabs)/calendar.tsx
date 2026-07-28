@@ -140,6 +140,12 @@ export default function KalenderScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Card style={styles.calendarCard} padding={8}>
           <Calendar
+            // react-native-calendars membangun style-nya sekali lewat
+            // `useRef(styleConstructor(theme))` dan tidak pernah menghitung ulang
+            // saat prop `theme` berubah. Karena layar tab tetap ter-mount, ganti
+            // mode terang/gelap membuat teks bulan tertinggal di warna palet lama
+            // sampai hampir tidak terlihat. `key` memaksa remount saat skema ganti.
+            key={theme.scheme}
             current={`${visibleMonth}-01`}
             onMonthChange={(month: DateData) => setVisibleMonth(month.dateString.slice(0, 7))}
             onDayPress={(day: DateData) => setSelectedDate(day.dateString)}
@@ -176,7 +182,7 @@ export default function KalenderScreen() {
               <Text variant="heading" color={theme.colors.primary}>
                 {prediction?.day_of_cycle ?? '—'}
               </Text>
-              <Text variant="caption" muted>
+              <Text variant="caption" muted style={styles.summaryLabel}>
                 hari berjalan
               </Text>
             </View>
@@ -184,7 +190,7 @@ export default function KalenderScreen() {
               <Text variant="heading" color={theme.colors.primary}>
                 {prediction?.average_cycle_length ?? '—'}
               </Text>
-              <Text variant="caption" muted>
+              <Text variant="caption" muted style={styles.summaryLabel}>
                 rata-rata siklus
               </Text>
             </View>
@@ -192,7 +198,7 @@ export default function KalenderScreen() {
               <Text variant="heading" color={theme.colors.primary}>
                 {averagePeriodLength ?? '—'}
               </Text>
-              <Text variant="caption" muted>
+              <Text variant="caption" muted style={styles.summaryLabel}>
                 rata-rata menstruasi
               </Text>
             </View>
@@ -273,7 +279,12 @@ const styles = StyleSheet.create({
   summaryCard: { gap: 12 },
   summaryTitle: {},
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  summaryItem: { alignItems: 'center', gap: 4, flex: 1 },
+  summaryItem: { alignItems: 'center', gap: 4, flex: 1, paddingHorizontal: 4 },
+  // Text yang wrap ke 2 baris menyempit ke lebar kata terpanjangnya sendiri,
+  // jadi `textAlign: 'center'` saja nyaris tak terlihat bila kedua baris
+  // panjangnya mirip (mis. "rata-rata" vs "menstruasi"). `alignSelf: 'stretch'`
+  // memaksa lebar penuh sekolom dulu, baru center-nya benar-benar terasa.
+  summaryLabel: { alignSelf: 'stretch', textAlign: 'center' },
   sheetContent: { gap: 4, paddingBottom: 16 },
   sheetPhase: { marginBottom: 16 },
   sheetButton: { marginTop: 8 },

@@ -45,14 +45,19 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 16,
+    rowGap: 12,
     paddingHorizontal: 20,
     paddingVertical: 12,
   },
+  // `width: '50%'` membagi persis 2 kolom; jangan tambah `gap`/`columnGap` di
+  // sini, karena akan melebihi 100% dan mendorong kolom kedua turun ke baris
+  // berikutnya. Jarak horizontal antar kolom cukup dari `paddingRight`.
   item: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
+    width: '50%',
+    paddingRight: 12,
   },
   icon: {
     width: 16,
