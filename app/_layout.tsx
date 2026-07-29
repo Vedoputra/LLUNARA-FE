@@ -19,9 +19,11 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { queryClient } from '@/api/queryClient';
 import { AppLockGate } from '@/components/AppLockGate';
+import { CelebrationOverlay } from '@/components/CelebrationOverlay';
 import { OfflineBanner } from '@/components/feedback';
 import { SplashIntro } from '@/components/SplashIntro';
 import { useAuthStore } from '@/store/authStore';
+import { useCelebrationStore } from '@/store/celebrationStore';
 import { useSettingsStore } from '@/store/settingsStore';
 
 const RELOCK_AFTER_MS = 5 * 60 * 1000;
@@ -42,6 +44,9 @@ export default function RootLayout() {
   const isAuthInitialized = useAuthStore((state) => state.isInitialized);
   const initializeAuth = useAuthStore((state) => state.initialize);
   const appLockEnabled = useSettingsStore((state) => state.appLockEnabled);
+
+  const celebration = useCelebrationStore((state) => state.current);
+  const dismissCelebration = useCelebrationStore((state) => state.dismiss);
 
   const [isLocked, setIsLocked] = useState(appLockEnabled);
   const [introDone, setIntroDone] = useState(false);
@@ -102,6 +107,12 @@ export default function RootLayout() {
                 <Stack.Screen name="(auth)" />
               </Stack.Protected>
             </Stack>
+            <CelebrationOverlay
+              visible={!!celebration}
+              title={celebration?.title ?? ''}
+              message={celebration?.message ?? ''}
+              onClose={dismissCelebration}
+            />
           </>
         )}
       </SafeAreaProvider>

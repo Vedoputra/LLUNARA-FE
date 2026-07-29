@@ -97,7 +97,7 @@ export default function KalenderScreen() {
 
   const handleConfirmEnd = (date: string) => {
     if (!activeCycle) return;
-    confirmEnd(activeCycle.id, date, () => setSelectedDate(null));
+    confirmEnd(activeCycle.id, date, () => setSelectedDate(null), activeCycle.start_date);
   };
 
   if (cyclesQuery.isLoading || predictionQuery.isLoading) {

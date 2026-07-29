@@ -5,7 +5,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ConsistencyRing } from '@/components/ConsistencyRing';
 import { ErrorState, LoadingState } from '@/components/feedback';
-import { GardenScene, gardenHeadline, LOGS_PER_STAGE } from '@/components/garden';
+import {
+  gardenHeadline,
+  gardenStats,
+  GardenScene,
+  LOGS_PER_STAGE,
+  SeasonCollection,
+} from '@/components/garden';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { Card, Sheet, Text } from '@/components/ui';
 import { useGarden } from '@/hooks/useGarden';
@@ -55,6 +61,7 @@ export default function TamanScreen() {
   const daysElapsedThisMonth = new Date().getDate();
   const consistencyProgress = garden.logged_days_this_month / Math.max(1, daysElapsedThisMonth);
   const headline = gardenHeadline(garden.total_logged_days, garden.new_this_week);
+  const { seasonIndex, completedSeasons } = gardenStats(garden.total_logged_days);
 
   return (
     <SafeAreaView
@@ -99,6 +106,11 @@ export default function TamanScreen() {
             </Text>
           </View>
         </Card>
+
+        <Text variant="subtitle" style={styles.sectionLabel}>
+          Koleksi musim
+        </Text>
+        <SeasonCollection completedSeasons={completedSeasons} currentSeasonIndex={seasonIndex} />
 
         <Text variant="subtitle" style={styles.sectionLabel}>
           Stiker suasana
@@ -156,6 +168,11 @@ export default function TamanScreen() {
           Catatan pertamamu langsung menumbuhkan tunas, lalu setiap {LOGS_PER_STAGE} catatan
           menambah satu tahap: tunas → berdaun → mekar. Tanaman tidak pernah menyusut walau ada hari
           yang terlewat.
+        </Text>
+        <Text style={styles.sheetBody}>
+          Saat ketujuh petak mekar, kebunmu masuk musim berikutnya dengan suasana warna yang baru.
+          Musim yang selesai tersimpan permanen di Koleksi musim, jadi kebunmu tidak pernah tamat
+          dan tidak ada progres yang hilang.
         </Text>
       </Sheet>
     </SafeAreaView>
