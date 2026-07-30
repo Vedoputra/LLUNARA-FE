@@ -1,12 +1,24 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 
 import { apiClient } from '@/api/client';
-import { invalidate, queryKeys } from '@/api/queryClient';
+import { invalidate, queryClient, queryKeys } from '@/api/queryClient';
 import { ApiError, type Cycle, type CyclePrediction, type Envelope } from '@/types/api';
 
 interface CycleWriteResponse {
   cycle: Cycle;
   prediction: CyclePrediction;
+}
+
+/**
+ * Setiap penulisan siklus sudah mengembalikan prediksi terbaru dalam response
+ * yang sama (lihat list_api.md), jadi hasilnya langsung ditanam ke cache.
+ *
+ * Tanpa ini, hari siklus dan fase di Beranda baru berubah setelah request
+ * kedua selesai — terlihat seperti angkanya "tidak ikut berubah" padahal cuma
+ * belum ter-refetch.
+ */
+function seedPrediction(prediction: CyclePrediction) {
+  queryClient.setQueryData(queryKeys.cyclePrediction, prediction);
 }
 
 export function useCycles() {
@@ -30,7 +42,10 @@ export function useStartCycle() {
       apiClient
         .post<Envelope<CycleWriteResponse>>('/api/v1/cycles', { start_date: startDate })
         .then((res) => res.data),
-    onSuccess: () => invalidate.cycles(),
+    onSuccess: (data) => {
+      seedPrediction(data.prediction);
+      return invalidate.cycles();
+    },
   });
 }
 
@@ -40,7 +55,10 @@ export function useEndCycle() {
       apiClient
         .patch<Envelope<CycleWriteResponse>>(`/api/v1/cycles/${cycleId}`, { end_date: endDate })
         .then((res) => res.data),
-    onSuccess: () => invalidate.cycles(),
+    onSuccess: (data) => {
+      seedPrediction(data.prediction);
+      return invalidate.cycles();
+    },
   });
 }
 
@@ -49,6 +67,22 @@ export function useDeleteCycle() {
     mutationFn: (cycleId: string) => apiClient.delete(`/api/v1/cycles/${cycleId}`),
     onSuccess: () => invalidate.cycles(),
   });
+}
+
+/**
+ * Siklus yang masih berjalan (belum ditandai berakhir).
+ *
+ * Sengaja memakai cek falsy, bukan `=== null`: kontrak API menyebut `end_date`
+ * bernilai `null`, tapi serializer Go dengan `omitempty` bisa menghilangkan
+ * field-nya sama sekali sehingga di sisi klien nilainya `undefined`. Cek ketat
+ * `=== null` akan meleset di kasus itu dan membuat siklus aktif tidak terdeteksi
+ * — tombol "menstruasi berakhir" jadi tidak pernah muncul.
+ *
+ * Dipakai bersama oleh Beranda dan Kalender supaya keduanya tidak bisa
+ * menilai "siklus aktif" dengan aturan yang berbeda.
+ */
+export function findActiveCycle(cycles: Cycle[]): Cycle | undefined {
+  return cycles.find((cycle) => !cycle.end_date);
 }
 
 export function cycleOverlapMessage(error: unknown): string | null {
