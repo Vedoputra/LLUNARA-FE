@@ -13,7 +13,7 @@ import { EmptyState, ErrorState, LoadingState } from '@/components/feedback';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { useTheme } from '@/hooks/useTheme';
 import { useCycleActions } from '@/hooks/useCycleActions';
-import { useCycles, useCyclePrediction } from '@/hooks/useCycles';
+import { findActiveCycle, useCycles, useCyclePrediction } from '@/hooks/useCycles';
 import { useDailyLogs } from '@/hooks/useDailyLogs';
 import { addDaysISO, formatLongDate, todayISO } from '@/utils/date';
 
@@ -39,7 +39,7 @@ export default function KalenderScreen() {
 
   const cycles = useMemo(() => cyclesQuery.data ?? [], [cyclesQuery.data]);
   const prediction = predictionQuery.data;
-  const activeCycle = cycles.find((cycle) => cycle.end_date === null);
+  const activeCycle = findActiveCycle(cycles);
 
   const markedDates = useMemo(() => {
     const marks: Record<string, DayMarking> = {};
