@@ -15,6 +15,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { useCycleActions } from '@/hooks/useCycleActions';
 import { findActiveCycle, useCycles, useCyclePrediction } from '@/hooks/useCycles';
 import { useDailyLogs } from '@/hooks/useDailyLogs';
+import { useResponsive } from '@/hooks/useResponsive';
 import { addDaysISO, formatLongDate, todayISO } from '@/utils/date';
 
 function monthRange(monthString: string) {
@@ -35,6 +36,7 @@ export default function KalenderScreen() {
   const predictionQuery = useCyclePrediction();
   const { from, to } = useMemo(() => monthRange(visibleMonth), [visibleMonth]);
   const dailyLogsQuery = useDailyLogs(from, to);
+  const { contentWidth } = useResponsive();
   const { confirmStart, confirmEnd, isStarting, isEnding } = useCycleActions();
 
   const cycles = useMemo(() => cyclesQuery.data ?? [], [cyclesQuery.data]);
@@ -137,7 +139,7 @@ export default function KalenderScreen() {
       edges={['top']}
     >
       <ScreenHeader title="Kalender" />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, contentWidth]}>
         <Card style={styles.calendarCard} padding={8}>
           <Calendar
             // react-native-calendars membangun style-nya sekali lewat

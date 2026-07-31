@@ -16,6 +16,7 @@ import { z } from 'zod';
 
 import { supabase } from '@/api/supabase';
 import { Button, Card, Input, Sheet, Text } from '@/components/ui';
+import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuthStore } from '@/store/authStore';
 
@@ -28,6 +29,7 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginScreen() {
   const theme = useTheme();
+  const { contentWidth } = useResponsive();
   const signIn = useAuthStore((state) => state.signIn);
   const sessionMessage = useAuthStore((state) => state.sessionMessage);
   const clearSessionMessage = useAuthStore((state) => state.clearSessionMessage);
@@ -58,7 +60,10 @@ export default function LoginScreen() {
       style={[styles.flex, { backgroundColor: theme.colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.content, contentWidth]}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.header}>
           <Image source={require('../../assets/mascot/luna-waving.png')} style={styles.mascot} />
           <Text variant="display" color={theme.colors.primary}>

@@ -15,6 +15,7 @@ import {
 import { z } from 'zod';
 
 import { Button, Card, Input, Text } from '@/components/ui';
+import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuthStore } from '@/store/authStore';
 
@@ -33,6 +34,7 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
   const theme = useTheme();
+  const { contentWidth } = useResponsive();
   const signUp = useAuthStore((state) => state.signUp);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -66,7 +68,10 @@ export default function RegisterScreen() {
       style={[styles.flex, { backgroundColor: theme.colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        contentContainerStyle={[styles.content, contentWidth]}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.header}>
           <Image source={require('../../assets/mascot/luna-waving.png')} style={styles.mascot} />
           <Text variant="display" color={theme.colors.primary}>
