@@ -8,6 +8,7 @@ import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { ReminderSettings } from '@/components/settings/ReminderSettings';
 import { SettingsRow } from '@/components/settings/SettingsRow';
 import { Button, Card, Divider, Input, Sheet, Text } from '@/components/ui';
+import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/useTheme';
 import { useDeleteSymptom, useSymptoms } from '@/hooks/useSymptoms';
 import { authenticate, isAppLockAvailable } from '@/services/appLock';
@@ -25,6 +26,7 @@ const REPOSITORY_URL = 'https://github.com/Vedoputra/LLUNARA-FE';
 
 export default function PengaturanScreen() {
   const theme = useTheme();
+  const { contentWidth } = useResponsive();
   const user = useAuthStore((state) => state.user);
   const signOut = useAuthStore((state) => state.signOut);
   const symptomsQuery = useSymptoms();
@@ -129,7 +131,7 @@ export default function PengaturanScreen() {
       edges={['top']}
     >
       <ScreenHeader title="Pengaturan" />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, contentWidth]}>
         <Text muted style={styles.subtitle}>
           Masuk sebagai {user?.email}
         </Text>

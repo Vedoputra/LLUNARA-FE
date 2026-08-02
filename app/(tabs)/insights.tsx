@@ -10,6 +10,7 @@ import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { Button, Card, Chip, Text } from '@/components/ui';
 import { WellnessHistory } from '@/components/wellness';
 import { useInsightsSummary, useMoodInsights, useSymptomInsights } from '@/hooks/useInsights';
+import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/useTheme';
 import type { CyclePhase, Regularity } from '@/types/api';
 
@@ -36,6 +37,7 @@ const RANGE_OPTIONS = [
 
 export default function StatistikScreen() {
   const theme = useTheme();
+  const { contentWidth } = useResponsive();
   const [months, setMonths] = useState(6);
 
   const summaryQuery = useInsightsSummary();
@@ -102,7 +104,7 @@ export default function StatistikScreen() {
       edges={['top']}
     >
       <ScreenHeader title="Statistik" />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, contentWidth]}>
         <Text muted>Mengenali pola tubuhmu</Text>
 
         <View style={styles.rangeRow}>

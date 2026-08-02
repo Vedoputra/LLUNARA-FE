@@ -15,6 +15,7 @@ import {
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { Card, Sheet, Text } from '@/components/ui';
 import { useGarden } from '@/hooks/useGarden';
+import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/useTheme';
 
 const MOOD_PRESETS = ['senang', 'tenang', 'biasa', 'sensitif', 'cemas', 'sedih', 'mudah marah'];
@@ -31,6 +32,7 @@ const MOOD_ICONS: Record<string, number> = {
 export default function TamanScreen() {
   const theme = useTheme();
   const gardenQuery = useGarden();
+  const { contentWidth } = useResponsive();
   const [growthInfoVisible, setGrowthInfoVisible] = useState(false);
 
   if (gardenQuery.isLoading) {
@@ -69,7 +71,7 @@ export default function TamanScreen() {
       edges={['top']}
     >
       <ScreenHeader title="Taman Luna" />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, contentWidth]}>
         <Text muted>Tumbuh bersama setiap catatanmu.</Text>
 
         <Card style={styles.gardenSceneCard} padding={0}>

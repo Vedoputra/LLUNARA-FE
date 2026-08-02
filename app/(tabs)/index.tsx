@@ -6,18 +6,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ConfidenceBadge } from '@/components/ConfidenceBadge';
 import { DailyInsightCard } from '@/components/DailyInsightCard';
 import { ErrorState, LoadingState } from '@/components/feedback';
+import { FertilityBadge } from '@/components/FertilityBadge';
 import { ScreenHeader } from '@/components/navigation/ScreenHeader';
 import { PhaseIndicator } from '@/components/PhaseIndicator';
 import { Button, Card, Text } from '@/components/ui';
 import { DAILY_MOTIVATIONS, HERO_MASCOTS } from '@/constants/dailyContent';
 import { useCycleActions } from '@/hooks/useCycleActions';
-import { useCycles, useCyclePrediction } from '@/hooks/useCycles';
+import { findActiveCycle, useCycles, useCyclePrediction } from '@/hooks/useCycles';
 import { useDailyLogs } from '@/hooks/useDailyLogs';
+import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuthStore } from '@/store/authStore';
 import type { FlowIntensity } from '@/types/api';
 import { pickForDay } from '@/utils/dailyRotation';
 import { diffInDays, formatLongDate, todayISO } from '@/utils/date';
+import { fertilityInsight } from '@/utils/fertility';
 
 const FLOW_LABELS: Record<FlowIntensity, string> = {
   light: 'Ringan',
@@ -40,10 +43,11 @@ export default function BerandaScreen() {
   const cyclesQuery = useCycles();
   const predictionQuery = useCyclePrediction();
   const todayLogQuery = useDailyLogs(today, today);
+  const { contentWidth } = useResponsive();
   const { confirmStart, confirmEnd, isStarting, isEnding } = useCycleActions();
 
   const cycles = cyclesQuery.data ?? [];
-  const activeCycle = cycles.find((cycle) => cycle.end_date === null);
+  const activeCycle = findActiveCycle(cycles);
   const prediction = predictionQuery.data;
   const todayLog = (todayLogQuery.data ?? [])[0];
   const displayName = user?.email?.split('@')[0];
@@ -56,6 +60,7 @@ export default function BerandaScreen() {
   // seirama dengan konten Did You Know.
   const motivation = pickForDay(DAILY_MOTIVATIONS, today, 1);
   const heroMascot = pickForDay(HERO_MASCOTS, today, 3) ?? HERO_MASCOTS[0];
+  const fertility = fertilityInsight(prediction, today);
 
   if (cyclesQuery.isLoading) {
     return (
@@ -87,7 +92,7 @@ export default function BerandaScreen() {
       edges={['top']}
     >
       <ScreenHeader />
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, contentWidth]}>
         <View style={styles.greetingBlock}>
           <Text variant="heading">
             {greeting()}
@@ -120,6 +125,7 @@ export default function BerandaScreen() {
                       {prediction?.current_phase ? (
                         <PhaseIndicator phase={prediction.current_phase} />
                       ) : null}
+                      <FertilityBadge level={fertility.level} label={fertility.label} />
                     </View>
                   </View>
                   <Text variant="caption" muted style={styles.countdownText}>
@@ -140,7 +146,7 @@ export default function BerandaScreen() {
             label="Menstruasi berakhir hari ini"
             icon={<Feather name="check-circle" size={18} color={theme.colors.onPrimary} />}
             loading={isEnding}
-            onPress={() => confirmEnd(activeCycle.id, today)}
+            onPress={() => confirmEnd(activeCycle.id, today, undefined, activeCycle.start_date)}
           />
         ) : (
           <Button
@@ -224,7 +230,7 @@ const styles = StyleSheet.create({
     rowGap: 4,
     columnGap: 12,
   },
-  phaseColumn: { alignItems: 'flex-end', gap: 2, transform: [{ translateY: -8 }] },
+  phaseColumn: { alignItems: 'flex-end', gap: 6, transform: [{ translateY: -15 }] },
   dayNumber: {
     fontSize: 55,
     lineHeight: 80,
