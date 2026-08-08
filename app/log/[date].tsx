@@ -11,6 +11,7 @@ import { LoadingState } from '@/components/feedback';
 import { useCycles } from '@/hooks/useCycles';
 import { useDailyLogs, useDeleteDailyLog, useSaveDailyLog } from '@/hooks/useDailyLogs';
 import { useSymptoms } from '@/hooks/useSymptoms';
+import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/useTheme';
 import type { FlowIntensity } from '@/types/api';
 import { diffInDays, formatLongDate } from '@/utils/date';
@@ -43,6 +44,7 @@ interface SaveOverrides {
 
 export default function DailyLogScreen() {
   const theme = useTheme();
+  const { contentWidth } = useResponsive();
   const { date } = useLocalSearchParams<{ date: string }>();
 
   const logQuery = useDailyLogs(date, date);
@@ -176,7 +178,7 @@ export default function DailyLogScreen() {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.colors.background }]}>
-      <View style={styles.header}>
+      <View style={[styles.header, contentWidth]}>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Kembali"
@@ -205,7 +207,7 @@ export default function DailyLogScreen() {
         )}
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, contentWidth]}>
         <Text variant="subtitle" style={styles.sectionLabel}>
           Intensitas
         </Text>

@@ -5,6 +5,7 @@ import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button, Card, Text } from '@/components/ui';
+import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/useTheme';
 import { exportAndShare, type ExportFormat } from '@/services/export';
 import { addDaysISO, todayISO } from '@/utils/date';
@@ -17,6 +18,7 @@ const RANGE_OPTIONS = [
 
 export default function ExportScreen() {
   const theme = useTheme();
+  const { contentWidth } = useResponsive();
   const [rangeKey, setRangeKey] = useState<(typeof RANGE_OPTIONS)[number]['key']>('6m');
   const [format, setFormat] = useState<ExportFormat>('pdf');
   const [isExporting, setIsExporting] = useState(false);
@@ -56,7 +58,7 @@ export default function ExportScreen() {
         <Text variant="title">Ekspor data</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, contentWidth]}>
         <Text muted>
           Buat laporan untuk dibawa ke dokter, atau simpan sebagai cadangan pribadi.
         </Text>

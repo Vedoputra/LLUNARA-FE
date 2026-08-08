@@ -137,6 +137,8 @@ const styles = StyleSheet.create({
   card: {
     alignItems: 'center',
     alignSelf: 'stretch',
+    // Dibatasi supaya kartu perayaan tidak melebar penuh di layar tablet.
+    maxWidth: 420,
     borderRadius: 32,
     padding: 24,
     gap: 6,

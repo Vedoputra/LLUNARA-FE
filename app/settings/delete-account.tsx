@@ -6,6 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { apiClient } from '@/api/client';
 import { Button, Card, Input, Sheet, Text } from '@/components/ui';
+import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/useTheme';
 import { useAuthStore } from '@/store/authStore';
 
@@ -13,6 +14,7 @@ const CONFIRMATION_WORD = 'HAPUS';
 
 export default function DeleteAccountScreen() {
   const theme = useTheme();
+  const { contentWidth } = useResponsive();
   const signOut = useAuthStore((state) => state.signOut);
   const [sheetVisible, setSheetVisible] = useState(false);
   const [confirmationText, setConfirmationText] = useState('');
@@ -56,7 +58,7 @@ export default function DeleteAccountScreen() {
         <Text variant="title">Hapus akun</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView contentContainerStyle={[styles.content, contentWidth]}>
         <Card style={styles.warningCard}>
           <Text variant="subtitle" color={theme.colors.danger}>
             Tindakan ini permanen
