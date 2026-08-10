@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Image, StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Svg, { Circle, Ellipse, Path, Rect } from 'react-native-svg';
 
+import { Text } from '@/components/ui';
 import { useTheme } from '@/hooks/useTheme';
 import type { GardenPalette } from '@/constants/theme';
 
@@ -26,15 +27,21 @@ export interface GardenSceneProps {
 export function GardenScene({ totalLoggedDays }: GardenSceneProps) {
   const theme = useTheme();
   const [width, setWidth] = useState(0);
-  const { stages, plantCount, bloomCount } = gardenStats(totalLoggedDays);
-  const garden = theme.colors.garden;
+  const { stages, plantCount, bloomCount, seasonIndex } = gardenStats(totalLoggedDays);
 
-  const bloomColors = [
-    theme.colors.cycle.luteal,
-    theme.colors.cycle.follicular,
-    theme.colors.cycle.ovulation,
-    theme.colors.cycle.predicted,
-  ];
+  const seasons = theme.colors.gardenSeasons;
+  const season = seasons[seasonIndex % seasons.length];
+  // Warna musim menimpa palet dasar; sisanya (awan, tanah gembur, inti bunga)
+  // tetap sama sepanjang musim supaya kebunnya masih terasa satu tempat.
+  const garden: GardenPalette = {
+    ...theme.colors.garden,
+    sky: season.sky,
+    ground: season.ground,
+    groundShade: season.groundShade,
+    stem: season.stem,
+    leaf: season.leaf,
+  };
+  const bloomColors = season.blooms;
 
   const onLayout = (event: LayoutChangeEvent) => setWidth(event.nativeEvent.layout.width);
 
@@ -45,7 +52,7 @@ export function GardenScene({ totalLoggedDays }: GardenSceneProps) {
   const label =
     plantCount === 0
       ? 'Kebun masih berupa tanah kosong, menunggu catatan pertamamu.'
-      : `Kebun dengan ${plantCount} tanaman, ${bloomCount} di antaranya sudah mekar.`;
+      : `Kebun ${season.name} dengan ${plantCount} tanaman, ${bloomCount} di antaranya sudah mekar.`;
 
   return (
     <View
@@ -94,6 +101,10 @@ export function GardenScene({ totalLoggedDays }: GardenSceneProps) {
           ))}
         </Svg>
       ) : null}
+
+      <View style={[styles.seasonBadge, { backgroundColor: theme.colors.surface }]}>
+        <Text variant="caption">{season.name}</Text>
+      </View>
 
       <Image
         source={require('../../../assets/mascot/luna-watering.png')}
@@ -217,6 +228,14 @@ function Cloud({ x, y, scale, fill }: CloudProps) {
 
 const styles = StyleSheet.create({
   scene: { height: SCENE_HEIGHT, overflow: 'hidden' },
+  seasonBadge: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
   mascot: {
     position: 'absolute',
     right: -6,
