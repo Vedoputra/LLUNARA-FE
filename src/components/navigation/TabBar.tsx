@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Text } from '@/components/ui';
+import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/useTheme';
 
 type IconRenderer = (color: string, size: number) => React.ReactNode;
@@ -16,9 +17,15 @@ const ICONS: Record<string, IconRenderer> = {
   settings: (color, size) => <Feather name="settings" size={size} color={color} />,
 };
 
+/** Ruang minimum di bawah label, dipakai kalau perangkat tidak punya inset. */
+const MIN_BOTTOM_PADDING = 10;
+
 export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
+  const { isTablet, contentWidth } = useResponsive();
+
+  const iconSize = isTablet ? 22 : 20;
 
   return (
     <View
@@ -27,80 +34,88 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         {
           backgroundColor: theme.colors.surface,
           borderTopColor: theme.colors.border,
-          paddingBottom: insets.bottom - 20,
+          // Sebelumnya `insets.bottom - 20`, yang jadi NEGATIF di perangkat
+          // tanpa gesture bar (banyak tablet) sehingga tab bar terlihat gepeng
+          // dan labelnya terpotong. Inset dipakai kalau ada, kalau tidak pakai
+          // padding minimum — tidak pernah dikurangi.
+          paddingBottom: Math.max(insets.bottom, MIN_BOTTOM_PADDING),
         },
       ]}
     >
-      {state.routes.map((route, index) => {
-        const { options } = descriptors[route.key];
-        const label = typeof options.title === 'string' ? options.title : route.name;
-        const isFocused = state.index === index;
-        const color = isFocused ? theme.colors.primary : theme.colors.textMuted;
-        const renderIcon = ICONS[route.name];
+      {/* Baris tab dibatasi lebarnya di tablet supaya kelima tab tidak
+          terpencar sejauh lebar layar. */}
+      <View style={[styles.row, contentWidth]}>
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const label = typeof options.title === 'string' ? options.title : route.name;
+          const isFocused = state.index === index;
+          const color = isFocused ? theme.colors.primary : theme.colors.textMuted;
+          const renderIcon = ICONS[route.name];
 
-        const onPress = () => {
-          const event = navigation.emit({
-            type: 'tabPress',
-            target: route.key,
-            canPreventDefault: true,
-          });
-          if (!isFocused && !event.defaultPrevented) {
-            navigation.navigate(route.name);
-          }
-        };
+          const onPress = () => {
+            const event = navigation.emit({
+              type: 'tabPress',
+              target: route.key,
+              canPreventDefault: true,
+            });
+            if (!isFocused && !event.defaultPrevented) {
+              navigation.navigate(route.name);
+            }
+          };
 
-        return (
-          <Pressable
-            key={route.key}
-            accessibilityRole="button"
-            accessibilityState={{ selected: isFocused }}
-            accessibilityLabel={label}
-            onPress={onPress}
-            style={styles.item}
-          >
-            <View style={[styles.pill, isFocused && { backgroundColor: theme.colors.primarySoft }]}>
-              {renderIcon?.(color, 18)}
-              <Text
-                variant="caption"
-                color={color}
-                numberOfLines={1}
-                adjustsFontSizeToFit
-                minimumFontScale={0.8}
-                style={styles.label}
+          return (
+            <Pressable
+              key={route.key}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isFocused }}
+              accessibilityLabel={label}
+              onPress={onPress}
+              style={styles.item}
+            >
+              <View
+                style={[styles.pill, isFocused && { backgroundColor: theme.colors.primarySoft }]}
               >
-                {label}
-              </Text>
-            </View>
-          </Pressable>
-        );
-      })}
+                {renderIcon?.(color, iconSize)}
+                <Text
+                  variant="caption"
+                  color={color}
+                  numberOfLines={1}
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.85}
+                  style={styles.label}
+                >
+                  {label}
+                </Text>
+              </View>
+            </Pressable>
+          );
+        })}
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
     borderTopWidth: 1,
-    paddingTop: 4,
-    paddingHorizontal: 4,
+    paddingTop: 8,
+    paddingHorizontal: 8,
   },
+  row: { flexDirection: 'row' },
   item: {
     flex: 1,
-    minHeight: 44,
+    minHeight: 48,
     alignItems: 'center',
     justifyContent: 'center',
   },
   pill: {
     alignItems: 'center',
-    gap: 1,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    justifyContent: 'center',
+    gap: 3,
+    paddingVertical: 7,
+    paddingHorizontal: 10,
     borderRadius: 999,
-    minWidth: 80,
+    alignSelf: 'stretch',
   },
-  label: {
-    fontSize: 10,
-    maxWidth: 68,
-  },
+  label: { fontSize: 11, textAlign: 'center' },
 });

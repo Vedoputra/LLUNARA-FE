@@ -1,7 +1,9 @@
 import { Feather } from '@expo/vector-icons';
-import { StyleSheet, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/ui';
+import { useResponsive } from '@/hooks/useResponsive';
 import { useTheme } from '@/hooks/useTheme';
 
 export interface ScreenHeaderProps {
@@ -10,13 +12,23 @@ export interface ScreenHeaderProps {
 
 export function ScreenHeader({ title = 'LLunara' }: ScreenHeaderProps) {
   const theme = useTheme();
+  const { contentWidth } = useResponsive();
 
   return (
-    <View style={styles.container}>
+    // Lebar header dibatasi sama seperti konten, supaya judul dan ikon tetap
+    // sejajar dengan kartu di bawahnya saat konten ditengahkan di tablet.
+    <View style={[styles.container, contentWidth]}>
       <Text variant="heading" color={theme.colors.primary}>
         {title}
       </Text>
-      <Feather name="bell" size={22} color={theme.colors.text} />
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Atur pengingat"
+        hitSlop={10}
+        onPress={() => router.push('/settings')}
+      >
+        <Feather name="bell" size={22} color={theme.colors.text} />
+      </Pressable>
     </View>
   );
 }
